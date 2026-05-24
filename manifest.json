@@ -1,0 +1,11 @@
+{
+  "background_color": "#ffffff",
+  "dir": "ltr",
+  "display": "standalone",
+  "name": "Handicraft Bazaar",
+  "orientation": "any",
+  "scope": "/",
+  "short_name": "Inventory",
+  "start_url": "/https://yuvrajsinghta.github.io/Handicraft-Bazaar/",
+  "theme_color": "#ffffff"
+}
