@@ -495,7 +495,7 @@ body{background:var(--bg);font-family:"DM Sans",sans-serif;color:var(--bark);dis
 <div class="overlay" id="m-product">
   <div class="sheet"><div class="sh-handle"></div>
     <div class="sh-title" id="mProdTitle">Add Product</div>
-    <div class="ff"><label class="fl">Category</label><select class="fi fsel" id="pCat"><option>Kitchen</option><option>Bathroom</option><option>Tulsi Pot</option><option>Decorative</option><option>Marble Items</option><option>Other</option></select></div>
+    <div class="ff"><label class="fl">Category</label><select class="fi fsel" id="pCat"><option>Kitchen</option><option>Bathroom</option><option>Tulsi Pot</option><option>Decorative</option><option>Idols</option><option>Other</option></select></div>
     <div class="ff"><label class="fl">Base Product Name</label><input type="text" class="fi" id="pName" placeholder="e.g. Kundi, Ganesh Idol…"/></div>
     <div class="ff"><label class="fl">Emoji</label><input type="text" class="fi" id="pEmoji" placeholder="e.g. 🏺 🪴 🗿" maxlength="4"/></div>
     <div style="font-size:10px;font-weight:700;color:var(--bark-lt);text-transform:uppercase;letter-spacing:.7px;margin-bottom:9px">Variants (Color + Size each = 1 row in Sheet)</div>
@@ -608,8 +608,8 @@ var FIXED_USER_ID = 'Inventory@handicraftbazaar.in';
 var LS_AUTH = 'hb_auth';
 
 var DEFAULT_LOW = 10;
-var CAT_EMOJI   = {Kitchen:'🍳',Bathroom:'🚿','Tulsi Pot':'🌿',Decorative:'✨','Marble Items':'🗿',Other:'📦'};
-var CATEGORIES  = ['Kitchen','Bathroom','Tulsi Pot','Decorative','Marble Items','Other'];
+var CAT_EMOJI   = {Kitchen:'🍳',Bathroom:'🚿','Tulsi Pot':'🌿',Decorative:'✨','Idols':'🗿',Other:'📦'};
+var CATEGORIES  = ['Kitchen','Bathroom','Tulsi Pot','Decorative','Idols','Other'];
 
 var products=[], activities=[], rtos=[];
 var varRows=[], editProdId=null, delProdId=null, editRTOId=null;
