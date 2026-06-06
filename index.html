@@ -931,6 +931,8 @@ function syncNow(){
   setSS('busy','Syncing…');
   gsCall({action:'getAll'}).then(function(data){
     if(data.error)throw new Error(data.error);
+
+    // Products — replace fully from sheet
     if(Array.isArray(data.products)){
       products=data.products.map(function(sp){
         sp.id=String(sp.id);
@@ -939,21 +941,26 @@ function syncNow(){
         return sp;
       });
     }
+
+    // RTOs — replace fully from sheet
     if(Array.isArray(data.rtos)){
-      var rIds=new Set(data.rtos.map(function(r){return String(r.id);}));
-      var localOnly=rtos.filter(function(r){return !rIds.has(String(r.id));});
-      rtos=data.rtos.map(function(r){r.id=String(r.id);return r;}).concat(localOnly);
+      rtos=data.rtos.map(function(r){r.id=String(r.id);return r;});
     }
+
+    // Activities — replace fully from sheet (fix double entry)
     if(Array.isArray(data.activities)){
-      var ex=new Set(activities.map(function(a){return String(a.id||a.time);}));
-      data.activities.forEach(function(a){a.time=Number(a.time)||Date.now();if(!ex.has(String(a.id||a.time)))activities.push(a);});
+      activities=data.activities.map(function(a){
+        a.time=Number(a.time)||Date.now();
+        a.id=String(a.id||a.time);
+        return a;
+      });
     }
-    // Sync custom orders from sheet
+
+    // Custom Orders — replace fully from sheet
     if(Array.isArray(data.customOrders)){
-      var coIds=new Set(data.customOrders.map(function(c){return String(c.id);}));
-      var localCOOnly=customOrders.filter(function(c){return !coIds.has(String(c.id));});
-      customOrders=data.customOrders.map(function(c){c.id=String(c.id);return c;}).concat(localCOOnly);
+      customOrders=data.customOrders.map(function(c){c.id=String(c.id);return c;});
     }
+
     saveLocal();
     var now=new Date().toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit'});
     setSS('ok','✅ '+now);refreshAll();toast('Synced ✅','ok');
