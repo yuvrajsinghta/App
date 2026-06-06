@@ -274,6 +274,67 @@ body{background:var(--bg);font-family:"DM Sans",sans-serif;color:var(--bark);dis
 .empty-ico svg{width:26px;height:26px;stroke:var(--clay);fill:none;stroke-width:1.8}
 .empty-title{font-size:16px;font-weight:700;color:var(--bark);font-family:"Fraunces",serif;margin-bottom:5px}
 .empty-desc{font-size:11.5px;color:var(--bark-lt);line-height:1.6}
+
+/* ══════════════════════════════════════
+   CUSTOM ORDERS — NEW STYLES
+══════════════════════════════════════ */
+.co-banner{margin:0 15px 13px;background:linear-gradient(135deg,#1A5FAD,#0E3D72);border-radius:var(--rl);padding:16px 18px;display:flex;align-items:center;justify-content:space-between;box-shadow:0 4px 16px rgba(26,95,173,.25)}
+.co-banner-left .co-label{font-size:10.5px;font-weight:700;color:rgba(255,255,255,.7);text-transform:uppercase;letter-spacing:.7px}
+.co-banner-left .co-sub{font-size:10px;color:rgba(255,255,255,.5);margin-top:2px}
+.co-banner-nums{display:flex;gap:18px}
+.co-banner-num{text-align:center}
+.co-banner-num .num{font-size:32px;font-weight:700;font-family:"Fraunces",serif;color:#fff;line-height:1}
+.co-banner-num .lbl{font-size:9px;color:rgba(255,255,255,.6);margin-top:2px}
+
+.cocard{background:var(--surf);border-radius:var(--rl);border:1px solid var(--brd);box-shadow:var(--sh);margin-bottom:11px;overflow:hidden;transition:box-shadow .2s}
+.cocard.due-today{border-left:4px solid var(--amber);box-shadow:0 0 0 2px rgba(184,114,10,.15),var(--sh)}
+.cocard.overdue{border-left:4px solid var(--red);box-shadow:0 0 0 2px rgba(192,40,40,.15),var(--sh)}
+.cocard.dispatched{opacity:.75}
+.cocard-head{padding:13px 14px 11px;border-bottom:1px solid var(--brd)}
+.cocard-top{display:flex;align-items:flex-start;justify-content:space-between;gap:9px;margin-bottom:7px}
+.cocard-id{font-size:9px;font-weight:800;color:var(--blue);background:var(--blue-l);padding:2px 8px;border-radius:20px;letter-spacing:.4px;text-transform:uppercase}
+.co-status-badge{display:inline-flex;align-items:center;padding:3px 9px;border-radius:20px;font-size:10px;font-weight:700}
+.cos-pending{background:var(--blue-l);color:var(--blue)}
+.cos-ready{background:var(--leaf-l);color:var(--leaf)}
+.cos-dispatched{background:var(--surf3);color:var(--bark-lt)}
+.cocard-name{font-size:16px;font-weight:700;color:var(--bark);font-family:"Fraunces",serif;line-height:1.2;margin-bottom:2px}
+.cocard-size{font-size:10.5px;color:var(--bark-lt)}
+.cocard-body{padding:11px 14px}
+.cocard-customer{display:flex;align-items:center;gap:8px;margin-bottom:10px;padding:9px 11px;background:var(--bg);border-radius:10px;border:1px solid var(--brd)}
+.cocard-customer-av{width:32px;height:32px;border-radius:50%;background:linear-gradient(135deg,var(--blue-l),var(--blue));display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;color:var(--blue-d);flex-shrink:0;font-family:"Fraunces",serif}
+.cocard-cname{font-size:12.5px;font-weight:700;color:var(--bark)}
+.cocard-cphone{font-size:10.5px;color:var(--bark-lt);margin-top:1px}
+.cocard-dates{display:grid;grid-template-columns:1fr 1fr 1fr;border:1px solid var(--brd);border-radius:10px;overflow:hidden;margin-bottom:10px}
+.cocard-date-cell{padding:9px 6px;text-align:center}
+.cocard-date-cell+.cocard-date-cell{border-left:1px solid var(--brd)}
+.cocard-date-num{font-size:13px;font-weight:700;color:var(--bark);font-family:"Fraunces",serif;line-height:1.2}
+.cocard-date-lbl{font-size:9px;font-weight:700;color:var(--bark-lt);text-transform:uppercase;letter-spacing:.4px;margin-top:2px}
+.cocard-date-cell.highlight .cocard-date-num{color:var(--amber)}
+.cocard-date-cell.overdue-cell .cocard-date-num{color:var(--red)}
+.cocard-date-cell.done-cell .cocard-date-num{color:var(--leaf)}
+.cocard-countdown{display:inline-flex;align-items:center;gap:5px;padding:4px 10px;border-radius:20px;font-size:10.5px;font-weight:700;margin-bottom:10px}
+.cd-upcoming{background:var(--blue-l);color:var(--blue)}
+.cd-today{background:var(--amber-l);color:var(--amber-d)}
+.cd-overdue{background:var(--red-l);color:var(--red)}
+.cd-done{background:var(--leaf-l);color:var(--leaf)}
+.cocard-remark{font-size:10.5px;color:var(--bark-lt);padding:6px 9px;background:var(--bg);border-radius:8px;margin-bottom:10px;border:1px solid var(--brd)}
+.cocard-actions{display:flex;gap:7px}
+.coact{flex:1;padding:8px 4px;border-radius:9px;font-size:11px;font-weight:700;border:none;cursor:pointer;font-family:"DM Sans",sans-serif;transition:transform .12s;display:flex;align-items:center;justify-content:center;gap:4px}
+.coact:active{transform:scale(.9)}
+.coact-ready{background:var(--leaf-l);color:var(--leaf-d)}
+.coact-dispatch{background:var(--blue-l);color:var(--blue-d)}
+.coact-edit{background:var(--amber-l);color:var(--amber-d)}
+.coact-del{background:var(--red-l);color:var(--red-d)}
+
+.co-filter-tabs{display:flex;overflow-x:auto;padding:0 15px;margin-bottom:0;border-bottom:1.5px solid var(--brd);scrollbar-width:none}
+.co-filter-tabs::-webkit-scrollbar{display:none}
+.co-filter-tab{flex-shrink:0;padding:9px 15px;font-size:11.5px;font-weight:700;cursor:pointer;border:none;background:none;color:var(--bark-lt);font-family:"DM Sans",sans-serif;border-bottom:2.5px solid transparent;transition:all .18s;white-space:nowrap;margin-bottom:-1.5px}
+.co-filter-tab.active{color:var(--blue);border-bottom-color:var(--blue)}
+
+/* Notification permission banner */
+.notif-banner{margin:0 15px 11px;background:var(--amber-l);border:1px solid rgba(184,114,10,.25);border-radius:12px;padding:10px 13px;display:flex;align-items:center;gap:10px}
+.notif-banner-txt{flex:1;font-size:11px;color:var(--amber-d);font-weight:600;line-height:1.5}
+.notif-banner-btn{padding:5px 12px;border-radius:8px;background:var(--amber);color:#fff;font-size:11px;font-weight:700;border:none;cursor:pointer;font-family:"DM Sans",sans-serif;flex-shrink:0}
 </style>
 </head>
 <body>
@@ -288,8 +349,6 @@ body{background:var(--bg);font-family:"DM Sans",sans-serif;color:var(--bark);dis
   <div class="login-title">Handicraft Bazaar</div>
   <div class="login-sub">Inventory Management System</div>
   <div class="login-card">
-
-    <!-- STEP 1: User ID -->
     <div class="login-step active" id="step1">
       <div class="login-err" id="step1Err"></div>
       <div class="login-field">
@@ -299,8 +358,6 @@ body{background:var(--bg);font-family:"DM Sans",sans-serif;color:var(--bark);dis
       <button class="login-btn" onclick="checkUserId()">Continue →</button>
       <div class="login-info">Authorized users only.<br>Contact admin for access.</div>
     </div>
-
-    <!-- STEP 2: OTP -->
     <div class="login-step" id="step2">
       <div class="login-err" id="step2Err"></div>
       <div style="text-align:center;margin-bottom:16px">
@@ -319,7 +376,6 @@ body{background:var(--bg);font-family:"DM Sans",sans-serif;color:var(--bark);dis
       <button class="resend-btn" id="resendBtn" onclick="resendOTP()" style="margin-top:12px">Resend OTP (<span id="resendTimer">60</span>s)</button>
       <button style="background:none;border:none;color:var(--bark-lt);font-family:DM Sans,sans-serif;font-size:11px;cursor:pointer;display:block;width:100%;text-align:center;margin-top:8px" onclick="backToStep1()">← Change User ID</button>
     </div>
-
   </div>
 </div>
 
@@ -352,7 +408,11 @@ body{background:var(--bg);font-family:"DM Sans",sans-serif;color:var(--bark);dis
     <div class="sc"><div class="sc-ico ic-clay"><svg viewBox="0 0 24 24"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/></svg></div><div class="sc-val" id="d-total">0</div><div class="sc-lbl">Products</div></div>
     <div class="sc"><div class="sc-ico ic-leaf"><svg viewBox="0 0 24 24"><path d="M21 16V8a2 2 0 00-1-1.73l-7-4a2 2 0 00-2 0l-7 4A2 2 0 003 8v8"/><polyline points="3.27 6.96 12 12.01 20.73 6.96"/></svg></div><div class="sc-val" id="d-stock">0</div><div class="sc-lbl">Total Stock</div></div>
     <div class="sc"><div class="sc-ico ic-amb"><svg viewBox="0 0 24 24"><path d="M21 16V8a2 2 0 00-1-1.73l-7-4a2 2 0 00-2 0l-7 4A2 2 0 003 8v8a2 2 0 001 1.73l7 4a2 2 0 002 0l7-4A2 2 0 0021 16z"/></svg></div><div class="sc-val" id="d-boxready">0</div><div class="sc-lbl">Box Ready</div></div>
-    <div class="sc"><div class="sc-ico ic-red"><svg viewBox="0 0 24 24"><path d="M12 9v4M12 17h.01"/><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/></svg></div><div class="sc-val" id="d-low">0</div><div class="sc-lbl">Low Stock</div></div>
+    <div class="sc ic-blue" style="background:var(--surf);border-radius:var(--rl);padding:14px;border:1px solid var(--brd);box-shadow:var(--sh);cursor:pointer" onclick="go('custom-orders')">
+      <div class="sc-ico" style="background:var(--blue-l)"><svg viewBox="0 0 24 24" style="stroke:var(--blue)"><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2"/><rect x="9" y="3" width="6" height="4" rx="1"/><line x1="9" y1="12" x2="15" y2="12"/><line x1="9" y1="16" x2="13" y2="16"/></svg></div>
+      <div class="sc-val" id="d-custom-orders">0</div>
+      <div class="sc-lbl">Custom Orders</div>
+    </div>
   </div>
   <div class="sold-banner"><div><div class="sold-label">Dispatched Today</div><div class="sold-sub" id="d-today-sub">—</div></div><div class="sold-num" id="d-today-sold">0</div></div>
   <div class="sec-hdr"><div class="sec-title">Stock by Category</div></div>
@@ -430,6 +490,59 @@ body{background:var(--bg);font-family:"DM Sans",sans-serif;color:var(--bark);dis
   </div>
 </div>
 
+<!-- ════════════════════════════════════
+     CUSTOM ORDERS — NEW SCREEN
+════════════════════════════════════ -->
+<div class="screen" id="screen-custom-orders">
+  <div class="back-bar"><button class="back-btn" onclick="go('dashboard')"><svg viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg>Back</button></div>
+
+  <!-- Notification permission banner (shown if not granted) -->
+  <div class="notif-banner" id="coNotifBanner" style="display:none">
+    <div class="notif-banner-txt">🔔 Notification permission do taaki ready date pe alert aa sake</div>
+    <button class="notif-banner-btn" onclick="requestNotifPermission()">Allow</button>
+  </div>
+
+  <!-- Stats banner -->
+  <div class="co-banner">
+    <div class="co-banner-left">
+      <div class="co-label">Custom Orders</div>
+      <div class="co-sub" id="co-banner-sub">All orders</div>
+    </div>
+    <div class="co-banner-nums">
+      <div class="co-banner-num"><div class="num" id="co-stat-pending">0</div><div class="lbl">Pending</div></div>
+      <div class="co-banner-num"><div class="num" id="co-stat-ready">0</div><div class="lbl">Ready</div></div>
+      <div class="co-banner-num"><div class="num" id="co-stat-due">0</div><div class="lbl">Due Today</div></div>
+    </div>
+  </div>
+
+  <!-- Search -->
+  <div class="srch-box"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg><input type="text" id="coSearch" placeholder="Search order, customer, product…" oninput="renderCustomOrders()"/></div>
+
+  <!-- Filter tabs -->
+  <div class="co-filter-tabs" id="coFilterTabs">
+    <button class="co-filter-tab active" id="cof-all" onclick="setCOFilter('all')">All</button>
+    <button class="co-filter-tab" id="cof-pending" onclick="setCOFilter('pending')">⏳ Pending</button>
+    <button class="co-filter-tab" id="cof-ready" onclick="setCOFilter('ready')">✅ Ready</button>
+    <button class="co-filter-tab" id="cof-dispatched" onclick="setCOFilter('dispatched')">🚚 Dispatched</button>
+    <button class="co-filter-tab" id="cof-due" onclick="setCOFilter('due')">🔔 Due Today</button>
+  </div>
+
+  <div style="padding:11px 15px 0">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:11px">
+      <div style="display:flex;align-items:center"><div class="sec-title" style="margin:0">Orders</div><span class="count-badge" id="coCount">0</span></div>
+      <button class="qb" onclick="openAddCustomOrder()">+ Add</button>
+    </div>
+    <div id="coList"></div>
+    <div id="coEmpty" style="display:none">
+      <div class="empty">
+        <div class="empty-ico"><svg viewBox="0 0 24 24"><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2"/><rect x="9" y="3" width="6" height="4" rx="1"/></svg></div>
+        <div class="empty-title">No Custom Orders</div>
+        <div class="empty-desc">Add a new custom order using the + button.</div>
+      </div>
+    </div>
+  </div>
+</div>
+
 <!-- PROFILE -->
 <div class="screen" id="screen-profile">
   <div class="back-bar"><button class="back-btn" onclick="go('dashboard')"><svg viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg>Back</button></div>
@@ -460,6 +573,8 @@ body{background:var(--bg);font-family:"DM Sans",sans-serif;color:var(--bark);dis
         <div class="dvd"></div>
         <div style="display:flex;justify-content:space-between;font-size:13px"><span style="color:var(--bark-lt)">Dispatched Today</span><b style="color:var(--red)" id="prof-today">0</b></div>
         <div class="dvd"></div>
+        <div style="display:flex;justify-content:space-between;font-size:13px"><span style="color:var(--bark-lt)">Custom Orders</span><b style="color:var(--blue)" id="prof-co">0</b></div>
+        <div class="dvd"></div>
         <div style="display:flex;justify-content:space-between;font-size:13px"><span style="color:var(--bark-lt)">RTO Records</span><b style="color:var(--blue)" id="prof-rto">0</b></div>
       </div>
     </div>
@@ -476,12 +591,12 @@ body{background:var(--bg);font-family:"DM Sans",sans-serif;color:var(--bark);dis
   <button class="ni active" id="nav-dashboard" onclick="go('dashboard')"><div class="ni-ico"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg></div><span class="ni-lbl">Home</span></button>
   <button class="ni" id="nav-products" onclick="go('products')"><div class="ni-ico"><svg viewBox="0 0 24 24"><path d="M21 16V8a2 2 0 00-1-1.73l-7-4a2 2 0 00-2 0l-7 4A2 2 0 003 8v8"/><polyline points="3.27 6.96 12 12.01 20.73 6.96"/></svg></div><span class="ni-lbl">Inventory</span></button>
   <button class="ni" id="nav-entry" onclick="go('entry')"><div class="ni-ico"><svg viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></div><span class="ni-lbl">Entry</span></button>
+  <button class="ni" id="nav-custom-orders" onclick="go('custom-orders')"><div class="ni-ico"><svg viewBox="0 0 24 24"><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2"/><rect x="9" y="3" width="6" height="4" rx="1"/><line x1="9" y1="12" x2="15" y2="12"/><line x1="9" y1="16" x2="13" y2="16"/></svg></div><span class="ni-lbl">Orders</span></button>
   <button class="ni" id="nav-khata" onclick="go('khata')"><div class="ni-ico"><svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg></div><span class="ni-lbl">Khata</span></button>
-  <button class="ni" id="nav-rto" onclick="go('rto')"><div class="ni-ico"><svg viewBox="0 0 24 24"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 102.13-9.36L1 10"/></svg></div><span class="ni-lbl">RTO</span></button>
 </nav>
 <button class="fab" onclick="openModal('m-fab')"><svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg></button>
 
-<!-- ALL OVERLAYS — unchanged from original -->
+<!-- ALL ORIGINAL OVERLAYS — UNCHANGED -->
 <div class="overlay" id="m-lowstock">
   <div class="sheet"><div class="sh-handle"></div>
     <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">
@@ -586,9 +701,53 @@ body{background:var(--bg);font-family:"DM Sans",sans-serif;color:var(--bark);dis
       <button class="btn btn-p" onclick="closeModal('m-fab');openAddProduct()">➕ Add New Product</button>
       <button class="btn btn-g" onclick="closeModal('m-fab');go('entry');setET('pack')">📦 Move to Box</button>
       <button class="btn btn-d" onclick="closeModal('m-fab');go('entry');setET('sale')">🛒 Dispatch Entry</button>
+      <button class="btn btn-b" onclick="closeModal('m-fab');go('custom-orders');openAddCustomOrder()">📋 Add Custom Order</button>
       <button class="btn btn-b" onclick="closeModal('m-fab');go('rto');openAddRTO()">🔁 Add RTO / Return</button>
       <button class="btn btn-s" onclick="closeModal('m-fab');syncNow()">🔄 Sync Sheets Now</button>
     </div>
+  </div>
+</div>
+
+<!-- ════════════════════════════════════
+     CUSTOM ORDER — ADD/EDIT OVERLAY
+════════════════════════════════════ -->
+<div class="overlay" id="m-co">
+  <div class="sheet"><div class="sh-handle"></div>
+    <div class="sh-title" id="mCoTitle">Add Custom Order</div>
+    <div class="ff"><label class="fl">Order ID *</label><input type="text" class="fi" id="coOrderId" placeholder="e.g. CO-001, HB-2024-01…"/></div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+      <div class="ff"><label class="fl">Customer Name *</label><input type="text" class="fi" id="coCustName" placeholder="Name…"/></div>
+      <div class="ff"><label class="fl">Phone *</label><input type="tel" class="fi" id="coCustPhone" placeholder="10-digit number" maxlength="10"/></div>
+    </div>
+    <div class="ff"><label class="fl">Product Name *</label><input type="text" class="fi" id="coProdName" placeholder="e.g. White Kundi, Ganesh Idol…"/></div>
+    <div class="ff"><label class="fl">Size</label><input type="text" class="fi" id="coSize" placeholder="e.g. 2.5 Feet, 4 inch…"/></div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+      <div class="ff"><label class="fl">Order Received Date *</label><input type="date" class="fi" id="coReceivedDate"/></div>
+      <div class="ff"><label class="fl">Expected Ready Date *</label><input type="date" class="fi" id="coReadyDate"/></div>
+    </div>
+    <div class="ff"><label class="fl">Dispatch Date</label><input type="date" class="fi" id="coDispatchDate"/></div>
+    <div class="ff"><label class="fl">Status</label>
+      <select class="fi fsel" id="coStatus">
+        <option value="pending">⏳ Pending</option>
+        <option value="ready">✅ Ready</option>
+        <option value="dispatched">🚚 Dispatched</option>
+      </select>
+    </div>
+    <div class="ff"><label class="fl">Remark / Note</label><input type="text" class="fi" id="coRemark" placeholder="Any special instructions…"/></div>
+    <div class="err-box" id="coErr"></div>
+    <div style="display:flex;gap:8px"><button class="btn btn-s" onclick="closeModal('m-co')" style="flex:.6">Cancel</button><button class="btn btn-p" onclick="saveCustomOrder()">Save Order</button></div>
+  </div>
+</div>
+
+<!-- Custom Order Delete Confirm -->
+<div class="overlay" id="m-del-co">
+  <div class="confirm-box"><div class="sh-handle" style="margin-bottom:14px"></div>
+    <div class="confirm-icon"><svg viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6"/></svg></div>
+    <div style="text-align:center;margin-bottom:18px">
+      <div style="font-size:17px;font-weight:700;color:var(--bark);font-family:Fraunces,serif;margin-bottom:6px">Delete Order?</div>
+      <div style="font-size:12px;color:var(--bark-lt)">Order <b id="delCoId" style="color:var(--bark)"></b> will be permanently removed.</div>
+    </div>
+    <div style="display:flex;gap:8px"><button class="btn btn-s" onclick="closeModal('m-del-co')" style="flex:1">Cancel</button><button class="btn btn-d" onclick="deleteCustomOrder()" style="flex:1">Delete</button></div>
   </div>
 </div>
 
@@ -600,7 +759,7 @@ body{background:var(--bg);font-family:"DM Sans",sans-serif;color:var(--bark);dis
 // + Login with OTP via Google Apps Script
 // + Back buttons on all pages
 // + Low stock email alert (via GAS)
-// + All original features unchanged
+// + Custom Orders with notifications & email
 // ═══════════════════════════════════════
 
 var GS = 'https://script.google.com/macros/s/AKfycbycmmPaPC0gIOU5GLXhtff5e9eccZ9OmfpHxMZ8l-3g1FW4VBsGxUtQ_n_q_rKOkunt/exec';
@@ -611,12 +770,13 @@ var DEFAULT_LOW = 10;
 var CAT_EMOJI   = {Kitchen:'🍳',Bathroom:'🚿','Tulsi Pot':'🌿',Decorative:'✨','Idols':'🗿',Other:'📦'};
 var CATEGORIES  = ['Kitchen','Bathroom','Tulsi Pot','Decorative','Idols','Other'];
 
-var products=[], activities=[], rtos=[];
+var products=[], activities=[], rtos=[], customOrders=[];
 var varRows=[], editProdId=null, delProdId=null, editRTOId=null;
 var editVarData=null;
 var quickData={type:'pack',pid:'',vid:''};
 var catFilter='all', sizeFilter='all', lowOnly=false;
 var rtoFilter='all', entType='pack', khFilter='all';
+var coFilter='all', editCOId=null, delCOId=null;
 
 // ── OTP STATE ──
 var currentOTP='', otpTimer=null, resendCountdown=0;
@@ -624,7 +784,7 @@ var currentOTP='', otpTimer=null, resendCountdown=0;
 function eid(i){return document.getElementById(i);}
 
 // ══════════════════════════════
-// LOGIN / OTP
+// LOGIN / OTP  — UNCHANGED
 // ══════════════════════════════
 function checkAuth(){
   var s=localStorage.getItem(LS_AUTH);
@@ -639,21 +799,18 @@ function showApp(){
 }
 function logout(){
   localStorage.removeItem(LS_AUTH);
-  // Reset OTP state
   currentOTP=''; clearInterval(otpTimer);
   showStep(1);
   eid('loginUserId').value='';
   [0,1,2,3,4,5].forEach(function(i){eid('otp'+i).value='';});
   showLogin();
 }
-
 function checkUserId(){
   var val=eid('loginUserId').value.trim();
   var err=eid('step1Err');
   if(!val){err.textContent='Please enter User ID.';err.style.display='block';return;}
   if(val.toLowerCase()!==FIXED_USER_ID.toLowerCase()){err.textContent='Invalid User ID. Access denied.';err.style.display='block';return;}
   err.style.display='none';
-  // Request OTP from GAS
   var btn=document.querySelector('#step1 .login-btn');
   btn.disabled=true; btn.textContent='Sending OTP…';
   fetch(GS+'?action=sendOTP&email='+encodeURIComponent(val)).then(function(r){return r.text();}).then(function(t){
@@ -664,54 +821,33 @@ function checkUserId(){
     btn.disabled=false; btn.textContent='Continue →';
   }).catch(function(){err.textContent='Network error. Try again.';err.style.display='block';btn.disabled=false;btn.textContent='Continue →';});
 }
-
-function showStep(n){
-  eid('step1').classList.toggle('active',n===1);
-  eid('step2').classList.toggle('active',n===2);
-}
+function showStep(n){eid('step1').classList.toggle('active',n===1);eid('step2').classList.toggle('active',n===2);}
 function backToStep1(){clearInterval(otpTimer);showStep(1);}
-
 function otpInput(idx){
   var v=eid('otp'+idx).value;
-  // Keep only last digit
   if(v.length>1) eid('otp'+idx).value=v.slice(-1);
   if(eid('otp'+idx).value&&idx<5) eid('otp'+(idx+1)).focus();
 }
-function otpKey(e,idx){
-  if(e.key==='Backspace'&&!eid('otp'+idx).value&&idx>0){eid('otp'+(idx-1)).focus();}
-}
-
+function otpKey(e,idx){if(e.key==='Backspace'&&!eid('otp'+idx).value&&idx>0){eid('otp'+(idx-1)).focus();}}
 function verifyOTP(){
   var entered=[0,1,2,3,4,5].map(function(i){return eid('otp'+i).value;}).join('');
   var err=eid('step2Err');
   if(entered.length!==6){err.textContent='Enter all 6 digits.';err.style.display='block';return;}
   if(entered===currentOTP){
-    err.style.display='none';
-    clearInterval(otpTimer);
+    err.style.display='none'; clearInterval(otpTimer);
     localStorage.setItem(LS_AUTH,JSON.stringify({ok:true,t:Date.now()}));
-    toast('Login successful! Welcome 🙏','ok');
-    showApp();
+    toast('Login successful! Welcome 🙏','ok'); showApp();
   }else{
     err.textContent='Wrong OTP. Please check and try again.';err.style.display='block';
-    [0,1,2,3,4,5].forEach(function(i){eid('otp'+i).value='';});
-    eid('otp0').focus();
+    [0,1,2,3,4,5].forEach(function(i){eid('otp'+i).value='';});eid('otp0').focus();
   }
 }
-
 function startResendTimer(){
-  resendCountdown=60;
-  var rb=eid('resendBtn');
-  rb.disabled=true;
-  clearInterval(otpTimer);
-  otpTimer=setInterval(function(){
-    resendCountdown--;
-    eid('resendTimer').textContent=resendCountdown;
-    if(resendCountdown<=0){clearInterval(otpTimer);rb.disabled=false;rb.textContent='Resend OTP';}
-  },1000);
+  resendCountdown=60; var rb=eid('resendBtn');rb.disabled=true; clearInterval(otpTimer);
+  otpTimer=setInterval(function(){resendCountdown--;eid('resendTimer').textContent=resendCountdown;if(resendCountdown<=0){clearInterval(otpTimer);rb.disabled=false;rb.textContent='Resend OTP';}},1000);
 }
 function resendOTP(){
-  var val=FIXED_USER_ID;
-  eid('resendBtn').disabled=true;
+  var val=FIXED_USER_ID; eid('resendBtn').disabled=true;
   fetch(GS+'?action=sendOTP&email='+encodeURIComponent(val)).then(function(r){return r.text();}).then(function(t){
     try{var d=JSON.parse(t.trim().replace(/^\uFEFF/,''));
       if(d.success){currentOTP=String(d.otp||'');toast('OTP resent ✅','ok');startResendTimer();}
@@ -722,7 +858,7 @@ function resendOTP(){
 }
 
 // ══════════════════════════════
-// APP INIT
+// APP INIT — UNCHANGED + CO additions
 // ══════════════════════════════
 function initApp(){
   var d=new Date(),h=d.getHours();
@@ -731,6 +867,9 @@ function initApp(){
   loadLocal();
   buildTabs();buildFilters();renderDash();renderProds();
   setET('pack');populateEntSel();buildRTOChips();renderRTO();
+  renderCustomOrders();
+  checkNotifPermission();
+  scheduleNotifCheck();
   setSS('busy','Connecting…');
   setTimeout(syncNow,1000);
   setInterval(syncNow,120000);
@@ -752,6 +891,7 @@ function addToQ(id,n){var el=eid(id);el.value=Math.max(0,(parseInt(el.value)||0)
 function fT(ts){return new Date(ts).toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit'});}
 function fD(ts){var d=new Date(ts),t=new Date();return d.toDateString()===t.toDateString()?'Today':d.toLocaleDateString('en-IN',{day:'numeric',month:'short'});}
 function fShort(s){return s?new Date(s).toLocaleDateString('en-IN',{day:'numeric',month:'short',year:'numeric'}):'—';}
+function fShortDate(s){if(!s)return'—';var parts=s.split('-');if(parts.length<3)return s;var d=new Date(s);return d.toLocaleDateString('en-IN',{day:'numeric',month:'short',year:'numeric'});}
 function varThresh(v){return Number(v.lowThreshold)||DEFAULT_LOW;}
 function isLow(v){return v.stock<=varThresh(v);}
 function totalStock(p){return p.variants.reduce(function(s,v){return s+v.stock;},0);}
@@ -762,10 +902,25 @@ function todaySale(){var t=new Date().toDateString();return activities.filter(fu
 function vDisplayName(v,p){return v.color+' '+(p?p.name:v.productName||'');}
 function showLowStock(){updateBell();openModal('m-lowstock');}
 
-var LS_P='hb7_p',LS_A='hb7_a',LS_R='hb7_r';
-function saveLocal(){try{localStorage.setItem(LS_P,JSON.stringify(products));localStorage.setItem(LS_A,JSON.stringify(activities.slice(-500)));localStorage.setItem(LS_R,JSON.stringify(rtos));}catch(e){}}
-function loadLocal(){try{var p=localStorage.getItem(LS_P),a=localStorage.getItem(LS_A),r=localStorage.getItem(LS_R);if(p)products=JSON.parse(p);if(a)activities=JSON.parse(a);if(r)rtos=JSON.parse(r);}catch(e){}}
-function clearLocalAndSync(){[LS_P,LS_A,LS_R].forEach(function(k){localStorage.removeItem(k);});products=[];activities=[];rtos=[];toast('Cleared. Syncing…','info');syncNow();}
+var LS_P='hb7_p',LS_A='hb7_a',LS_R='hb7_r',LS_CO='hb7_co';
+function saveLocal(){
+  try{
+    localStorage.setItem(LS_P,JSON.stringify(products));
+    localStorage.setItem(LS_A,JSON.stringify(activities.slice(-500)));
+    localStorage.setItem(LS_R,JSON.stringify(rtos));
+    localStorage.setItem(LS_CO,JSON.stringify(customOrders));
+  }catch(e){}
+}
+function loadLocal(){
+  try{
+    var p=localStorage.getItem(LS_P),a=localStorage.getItem(LS_A),r=localStorage.getItem(LS_R),co=localStorage.getItem(LS_CO);
+    if(p)products=JSON.parse(p);
+    if(a)activities=JSON.parse(a);
+    if(r)rtos=JSON.parse(r);
+    if(co)customOrders=JSON.parse(co);
+  }catch(e){}
+}
+function clearLocalAndSync(){[LS_P,LS_A,LS_R,LS_CO].forEach(function(k){localStorage.removeItem(k);});products=[];activities=[];rtos=[];customOrders=[];toast('Cleared. Syncing…','info');syncNow();}
 
 function setSS(s,t){eid('syncPill').className='sync-pill '+s;eid('sdot').className='sdot '+s;eid('syncTxt').textContent=t;var l=eid('lastSyncTxt');if(l)l.textContent=t;}
 function gsCall(p){
@@ -793,6 +948,12 @@ function syncNow(){
       var ex=new Set(activities.map(function(a){return String(a.id||a.time);}));
       data.activities.forEach(function(a){a.time=Number(a.time)||Date.now();if(!ex.has(String(a.id||a.time)))activities.push(a);});
     }
+    // Sync custom orders from sheet
+    if(Array.isArray(data.customOrders)){
+      var coIds=new Set(data.customOrders.map(function(c){return String(c.id);}));
+      var localCOOnly=customOrders.filter(function(c){return !coIds.has(String(c.id));});
+      customOrders=data.customOrders.map(function(c){c.id=String(c.id);return c;}).concat(localCOOnly);
+    }
     saveLocal();
     var now=new Date().toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit'});
     setSS('ok','✅ '+now);refreshAll();toast('Synced ✅','ok');
@@ -804,15 +965,18 @@ function pushDelProduct(pid){return gsCall({action:'deleteVariant',productId:pid
 function pushRTO(r){return gsCall({action:'saveRTO',id:r.id,product:r.product,company:r.company,orderId:r.orderId||'',trackId:r.trackId||'',returnDate:r.returnDate||'',deliveredDate:r.deliveredDate||'',status:r.status,claim:r.claim,remark:r.remark||''});}
 function pushDelRTO(id){return gsCall({action:'deleteRTO',id:id});}
 function pushKhata(a){return gsCall({action:'addKhata',id:a.id||String(Date.now()),type:a.type,productId:a.productId||'',productName:a.productName,variantId:a.variantId||'',variantLabel:a.variantLabel||'',qty:a.qty,user:a.user||'Kamal',note:a.note||''});}
+// NEW: Custom Order push
+function pushCustomOrder(co){return gsCall({action:'saveCustomOrder',id:co.id,orderId:co.orderId,custName:co.custName,custPhone:co.custPhone,prodName:co.prodName,size:co.size||'',receivedDate:co.receivedDate,readyDate:co.readyDate,dispatchDate:co.dispatchDate||'',status:co.status,remark:co.remark||''});}
+function pushDelCustomOrder(id){return gsCall({action:'deleteCustomOrder',id:id});}
 
 function go(name){
   document.querySelectorAll('.screen').forEach(function(s){s.classList.remove('active');});
   document.querySelectorAll('.ni').forEach(function(n){n.classList.remove('active');});
   eid('screen-'+name).classList.add('active');eid('sw').scrollTop=0;
   var nav=eid('nav-'+name);if(nav)nav.classList.add('active');
-  ({dashboard:renderDash,products:function(){buildTabs();buildFilters();renderProds();},khata:renderKhata,entry:populateEntSel,rto:function(){buildRTOChips();renderRTO();},profile:renderProfile}[name]||function(){})();
+  ({dashboard:renderDash,products:function(){buildTabs();buildFilters();renderProds();},khata:renderKhata,entry:populateEntSel,rto:function(){buildRTOChips();renderRTO();},'custom-orders':function(){renderCustomOrders();checkNotifPermission();},profile:renderProfile}[name]||function(){})();
 }
-function refreshAll(){updateBell();renderDash();buildTabs();buildFilters();renderProds();renderKhata();renderRTO();}
+function refreshAll(){updateBell();renderDash();buildTabs();buildFilters();renderProds();renderKhata();renderRTO();renderCustomOrders();}
 
 function updateBell(){
   var low=lowVars();var b=eid('bellBadge');
@@ -838,7 +1002,7 @@ function renderDash(){
   eid('d-total').textContent=products.length;
   eid('d-stock').textContent=av.reduce(function(s,v){return s+v.stock;},0);
   eid('d-boxready').textContent=av.reduce(function(s,v){return s+v.packed;},0);
-  eid('d-low').textContent=lowVars().length;
+  eid('d-custom-orders').textContent=customOrders.filter(function(c){return c.status!=='dispatched';}).length;
   var ts=todaySale();eid('d-today-sold').textContent=ts;
   var tp=new Set(activities.filter(function(a){return a.type==='sale'&&new Date(a.time).toDateString()===new Date().toDateString();}).map(function(a){return a.productName;}));
   eid('d-today-sub').textContent='Across '+tp.size+' product(s)';
@@ -1165,7 +1329,333 @@ function saveRTO(){
 }
 function confirmDelRTO(id){editRTOId=String(id);openModal('m-del-rto');}
 function deleteRTO(){setSS('busy','Deleting…');pushDelRTO(editRTOId).then(function(){rtos=rtos.filter(function(r){return String(r.id)!==editRTOId;});saveLocal();setSS('ok','Deleted');toast('RTO deleted ✅','err');closeModal('m-del-rto');renderRTO();});}
-function renderProfile(){var av=allVariants();eid('prof-total').textContent=products.length;eid('prof-vars').textContent=av.length;eid('prof-stock').textContent=av.reduce(function(s,v){return s+v.stock;},0);eid('prof-today').textContent=todaySale();eid('prof-rto').textContent=rtos.length;}
+function renderProfile(){
+  var av=allVariants();
+  eid('prof-total').textContent=products.length;
+  eid('prof-vars').textContent=av.length;
+  eid('prof-stock').textContent=av.reduce(function(s,v){return s+v.stock;},0);
+  eid('prof-today').textContent=todaySale();
+  eid('prof-co').textContent=customOrders.length;
+  eid('prof-rto').textContent=rtos.length;
+}
+
+// ══════════════════════════════════════════════
+// CUSTOM ORDERS — NEW CODE
+// ══════════════════════════════════════════════
+
+function setCOFilter(f){
+  coFilter=f;
+  ['all','pending','ready','dispatched','due'].forEach(function(id){
+    var e=eid('cof-'+id);if(e)e.classList.remove('active');
+  });
+  var e=eid('cof-'+f);if(e)e.classList.add('active');
+  renderCustomOrders();
+}
+
+// Helper: days difference between today and a date string YYYY-MM-DD
+function daysDiff(dateStr){
+  if(!dateStr)return null;
+  var today=new Date();today.setHours(0,0,0,0);
+  var d=new Date(dateStr);d.setHours(0,0,0,0);
+  return Math.round((d-today)/(1000*60*60*24));
+}
+
+function countdownHtml(co){
+  if(co.status==='dispatched') return '<span class="cocard-countdown cd-done">🚚 Dispatched on '+fShortDate(co.dispatchDate)+'</span>';
+  if(co.status==='ready') return '<span class="cocard-countdown cd-done">✅ Ready to Dispatch</span>';
+  var diff=daysDiff(co.readyDate);
+  if(diff===null)return'';
+  if(diff<0)return'<span class="cocard-countdown cd-overdue">🔴 Overdue by '+Math.abs(diff)+' day'+(Math.abs(diff)!==1?'s':'')+'</span>';
+  if(diff===0)return'<span class="cocard-countdown cd-today">🔔 Ready Today!</span>';
+  if(diff===1)return'<span class="cocard-countdown cd-today">⚠️ Ready Tomorrow</span>';
+  return'<span class="cocard-countdown cd-upcoming">📅 '+diff+' days to ready</span>';
+}
+
+function renderCustomOrders(){
+  var today=new Date();today.setHours(0,0,0,0);
+  var todayStr=today.toISOString().slice(0,10);
+
+  // Stats
+  var pending=customOrders.filter(function(c){return c.status==='pending';}).length;
+  var ready=customOrders.filter(function(c){return c.status==='ready';}).length;
+  var due=customOrders.filter(function(c){return c.status!=='dispatched'&&c.readyDate===todayStr;}).length;
+  eid('co-stat-pending').textContent=pending;
+  eid('co-stat-ready').textContent=ready;
+  eid('co-stat-due').textContent=due;
+  eid('co-banner-sub').textContent=customOrders.length+' total orders';
+
+  var q=(eid('coSearch')?eid('coSearch').value:'').toLowerCase();
+  var list=customOrders.filter(function(co){
+    if(coFilter==='pending'&&co.status!=='pending')return false;
+    if(coFilter==='ready'&&co.status!=='ready')return false;
+    if(coFilter==='dispatched'&&co.status!=='dispatched')return false;
+    if(coFilter==='due'&&!(co.status!=='dispatched'&&co.readyDate===todayStr))return false;
+    if(q){
+      var h=[co.orderId,co.custName,co.custPhone,co.prodName,co.size||''].join(' ').toLowerCase();
+      if(h.indexOf(q)===-1)return false;
+    }
+    return true;
+  });
+
+  // Sort: overdue first, then by readyDate asc, dispatched last
+  list.sort(function(a,b){
+    if(a.status==='dispatched'&&b.status!=='dispatched')return 1;
+    if(b.status==='dispatched'&&a.status!=='dispatched')return-1;
+    var da=a.readyDate||'9999',db=b.readyDate||'9999';
+    return da<db?-1:da>db?1:0;
+  });
+
+  var el=eid('coList'),emp=eid('coEmpty'),cnt=eid('coCount');
+  if(cnt)cnt.textContent=list.length;
+  if(!list.length){el.innerHTML='';emp.style.display='block';return;}
+  emp.style.display='none';
+
+  el.innerHTML=list.map(function(co){
+    var diff=daysDiff(co.readyDate);
+    var cardCls='cocard';
+    if(co.status==='dispatched')cardCls+=' dispatched';
+    else if(co.status!=='dispatched'&&co.readyDate===todayStr)cardCls+=' due-today';
+    else if(diff!==null&&diff<0&&co.status!=='dispatched')cardCls+=' overdue';
+
+    var initials=(co.custName||'?').split(' ').map(function(w){return w[0]||'';}).slice(0,2).join('').toUpperCase();
+
+    var readyCls='';
+    if(co.status==='dispatched') readyCls='done-cell';
+    else if(diff!==null&&diff<0) readyCls='overdue-cell';
+    else if(diff===0) readyCls='highlight';
+
+    var statusBadgeClass={pending:'cos-pending',ready:'cos-ready',dispatched:'cos-dispatched'}[co.status]||'cos-pending';
+    var statusLabel={pending:'⏳ Pending',ready:'✅ Ready',dispatched:'🚚 Dispatched'}[co.status]||co.status;
+
+    var actBtns='';
+    if(co.status==='pending'){
+      actBtns+='<button class="coact coact-ready" onclick="markCOReady(\''+co.id+'\')">✅ Mark Ready</button>';
+    }
+    if(co.status==='ready'){
+      actBtns+='<button class="coact coact-dispatch" onclick="markCODispatched(\''+co.id+'\')">🚚 Dispatch</button>';
+    }
+    actBtns+='<button class="coact coact-edit" onclick="editCustomOrder(\''+co.id+'\')">✏️</button>';
+    actBtns+='<button class="coact coact-del" onclick="confirmDelCO(\''+co.id+'\')">🗑</button>';
+
+    return '<div class="'+cardCls+'">'+
+      '<div class="cocard-head">'+
+        '<div class="cocard-top">'+
+          '<span class="cocard-id">'+co.orderId+'</span>'+
+          '<span class="co-status-badge '+statusBadgeClass+'">'+statusLabel+'</span>'+
+        '</div>'+
+        '<div class="cocard-name">'+co.prodName+'</div>'+
+        (co.size?'<div class="cocard-size">'+co.size+'</div>':'')+
+      '</div>'+
+      '<div class="cocard-body">'+
+        '<div class="cocard-customer">'+
+          '<div class="cocard-customer-av">'+initials+'</div>'+
+          '<div style="flex:1;min-width:0">'+
+            '<div class="cocard-cname">'+co.custName+'</div>'+
+            '<div class="cocard-cphone">📞 '+co.custPhone+'</div>'+
+          '</div>'+
+          '<a href="tel:'+co.custPhone+'" style="padding:5px 11px;border-radius:8px;background:var(--leaf-l);color:var(--leaf-d);font-size:11px;font-weight:700;text-decoration:none;flex-shrink:0">Call</a>'+
+        '</div>'+
+        '<div class="cocard-dates">'+
+          '<div class="cocard-date-cell"><div class="cocard-date-num">'+fShortDate(co.receivedDate)+'</div><div class="cocard-date-lbl">Received</div></div>'+
+          '<div class="cocard-date-cell '+readyCls+'"><div class="cocard-date-num">'+fShortDate(co.readyDate)+'</div><div class="cocard-date-lbl">Ready By</div></div>'+
+          '<div class="cocard-date-cell '+(co.dispatchDate?'done-cell':'')+'"><div class="cocard-date-num">'+fShortDate(co.dispatchDate)+'</div><div class="cocard-date-lbl">Dispatched</div></div>'+
+        '</div>'+
+        countdownHtml(co)+
+        (co.remark?'<div class="cocard-remark">💬 '+co.remark+'</div>':'')+
+        '<div class="cocard-actions">'+actBtns+'</div>'+
+      '</div>'+
+    '</div>';
+  }).join('');
+}
+
+function openAddCustomOrder(){
+  editCOId=null;
+  eid('mCoTitle').textContent='Add Custom Order';
+  ['coOrderId','coCustName','coCustPhone','coProdName','coSize','coDispatchDate','coRemark'].forEach(function(id){eid(id).value='';});
+  // Set today as default received date
+  eid('coReceivedDate').value=new Date().toISOString().slice(0,10);
+  eid('coReadyDate').value='';
+  eid('coStatus').value='pending';
+  eid('coErr').style.display='none';
+  openModal('m-co');
+}
+
+function editCustomOrder(id){
+  var co=customOrders.find(function(x){return String(x.id)===String(id);});
+  if(!co)return;
+  editCOId=String(id);
+  eid('mCoTitle').textContent='Edit Order';
+  eid('coOrderId').value=co.orderId;
+  eid('coCustName').value=co.custName;
+  eid('coCustPhone').value=co.custPhone;
+  eid('coProdName').value=co.prodName;
+  eid('coSize').value=co.size||'';
+  eid('coReceivedDate').value=co.receivedDate||'';
+  eid('coReadyDate').value=co.readyDate||'';
+  eid('coDispatchDate').value=co.dispatchDate||'';
+  eid('coStatus').value=co.status||'pending';
+  eid('coRemark').value=co.remark||'';
+  eid('coErr').style.display='none';
+  openModal('m-co');
+}
+
+function saveCustomOrder(){
+  var orderId=eid('coOrderId').value.trim();
+  var custName=eid('coCustName').value.trim();
+  var custPhone=eid('coCustPhone').value.trim();
+  var prodName=eid('coProdName').value.trim();
+  var readyDate=eid('coReadyDate').value;
+  var receivedDate=eid('coReceivedDate').value;
+  var err=eid('coErr');
+
+  if(!orderId){err.textContent='Order ID required.';err.style.display='block';return;}
+  if(!custName){err.textContent='Customer name required.';err.style.display='block';return;}
+  if(!custPhone||custPhone.length!==10||!/^\d{10}$/.test(custPhone)){err.textContent='Valid 10-digit phone required.';err.style.display='block';return;}
+  if(!prodName){err.textContent='Product name required.';err.style.display='block';return;}
+  if(!receivedDate){err.textContent='Received date required.';err.style.display='block';return;}
+  if(!readyDate){err.textContent='Expected ready date required.';err.style.display='block';return;}
+  err.style.display='none';
+
+  var id=editCOId||String(Date.now());
+  var data={
+    id:id,
+    orderId:orderId,
+    custName:custName,
+    custPhone:custPhone,
+    prodName:prodName,
+    size:eid('coSize').value.trim(),
+    receivedDate:receivedDate,
+    readyDate:readyDate,
+    dispatchDate:eid('coDispatchDate').value,
+    status:eid('coStatus').value||'pending',
+    remark:eid('coRemark').value.trim(),
+    createdAt:Date.now()
+  };
+
+  if(editCOId){
+    var idx=customOrders.findIndex(function(x){return String(x.id)===editCOId;});
+    if(idx>=0)customOrders[idx]=data;else customOrders.push(data);
+  }else{
+    customOrders.push(data);
+  }
+
+  saveLocal();
+  setSS('busy','Saving…');
+  pushCustomOrder(data).then(function(){
+    setSS('ok','✅ Saved');
+    toast((editCOId?'Order updated':'Order added')+' ✅','ok');
+  });
+  closeModal('m-co');
+  renderCustomOrders();
+  renderDash();
+}
+
+function markCOReady(id){
+  var co=customOrders.find(function(x){return String(x.id)===String(id);});
+  if(!co)return;
+  co.status='ready';
+  saveLocal();
+  setSS('busy','Saving…');
+  pushCustomOrder(co).then(function(){setSS('ok','✅ Saved');toast('Order marked Ready ✅','ok');});
+  renderCustomOrders();renderDash();
+}
+
+function markCODispatched(id){
+  var co=customOrders.find(function(x){return String(x.id)===String(id);});
+  if(!co)return;
+  co.status='dispatched';
+  co.dispatchDate=new Date().toISOString().slice(0,10);
+  saveLocal();
+  setSS('busy','Saving…');
+  pushCustomOrder(co).then(function(){setSS('ok','✅ Saved');toast('Order dispatched 🚚','ok');});
+  renderCustomOrders();renderDash();
+}
+
+function confirmDelCO(id){
+  var co=customOrders.find(function(x){return String(x.id)===String(id);});
+  if(!co)return;
+  delCOId=String(id);
+  eid('delCoId').textContent=co.orderId;
+  openModal('m-del-co');
+}
+
+function deleteCustomOrder(){
+  setSS('busy','Deleting…');
+  pushDelCustomOrder(delCOId).then(function(){
+    customOrders=customOrders.filter(function(x){return String(x.id)!==delCOId;});
+    saveLocal();setSS('ok','Deleted');toast('Order deleted','err');closeModal('m-del-co');renderCustomOrders();renderDash();
+  });
+}
+
+// ══════════════════════════════════════════════
+// NOTIFICATIONS — NEW CODE
+// ══════════════════════════════════════════════
+
+function checkNotifPermission(){
+  var banner=eid('coNotifBanner');
+  if(!banner)return;
+  if(!('Notification' in window)){banner.style.display='none';return;}
+  if(Notification.permission==='granted'){banner.style.display='none';}
+  else if(Notification.permission==='denied'){banner.style.display='none';}
+  else{banner.style.display='flex';}
+}
+
+function requestNotifPermission(){
+  if(!('Notification' in window)){toast('Browser notifications not supported','warn');return;}
+  Notification.requestPermission().then(function(p){
+    checkNotifPermission();
+    if(p==='granted'){toast('Notifications enabled ✅','ok');scheduleNotifCheck();}
+    else{toast('Notifications denied','warn');}
+  });
+}
+
+// Check every hour if any order is due today or tomorrow; show notification
+function scheduleNotifCheck(){
+  doNotifCheck();
+  setInterval(doNotifCheck,3600000);
+}
+
+var LS_NOTIF_SENT='hb_notif_sent';
+
+function doNotifCheck(){
+  if(!('Notification' in window)||Notification.permission!=='granted')return;
+  var today=new Date();today.setHours(0,0,0,0);
+  var todayStr=today.toISOString().slice(0,10);
+  var tomorrowStr=new Date(today.getTime()+86400000).toISOString().slice(0,10);
+
+  // Track which notifs already sent today
+  var sentKey=todayStr;
+  var sentData={};
+  try{sentData=JSON.parse(localStorage.getItem(LS_NOTIF_SENT)||'{}');}catch(e){}
+  if(sentData.date!==sentKey)sentData={date:sentKey,sent:[]};
+
+  customOrders.forEach(function(co){
+    if(co.status==='dispatched')return;
+    var notifId=co.id;
+
+    // Due today
+    if(co.readyDate===todayStr&&sentData.sent.indexOf(notifId+'_today')===-1){
+      new Notification('🔔 Custom Order Ready Today!',{
+        body:co.orderId+' — '+co.prodName+(co.size?' ('+co.size+')':'')+'\nCustomer: '+co.custName+' '+co.custPhone,
+        icon:'https://cdn.jsdelivr.net/npm/twemoji@14.0.2/assets/72x72/1f3fa.png',
+        tag:notifId+'_today'
+      });
+      sentData.sent.push(notifId+'_today');
+    }
+
+    // Due tomorrow (1 day before)
+    if(co.readyDate===tomorrowStr&&sentData.sent.indexOf(notifId+'_tomorrow')===-1){
+      new Notification('⏰ Custom Order Due Tomorrow',{
+        body:co.orderId+' — '+co.prodName+(co.size?' ('+co.size+')':'')+'\nReady by: '+fShortDate(co.readyDate)+'\nCustomer: '+co.custName,
+        icon:'https://cdn.jsdelivr.net/npm/twemoji@14.0.2/assets/72x72/1f3fa.png',
+        tag:notifId+'_tomorrow'
+      });
+      sentData.sent.push(notifId+'_tomorrow');
+    }
+  });
+
+  localStorage.setItem(LS_NOTIF_SENT,JSON.stringify(sentData));
+}
 
 // Boot
 checkAuth();
