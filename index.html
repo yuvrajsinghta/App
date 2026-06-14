@@ -874,6 +874,7 @@ function toggleDark(){var h=document.documentElement,d=h.getAttribute('data-them
 function adjQ(n,id){var el=eid(id);el.value=Math.max(0,(parseInt(el.value)||0)+n);}
 function addToQ(id,n){var el=eid(id);el.value=Math.max(0,(parseInt(el.value)||0)+n);}
 function gsCall(p){var url=GS+'?'+new URLSearchParams(p).toString();return fetch(url,{method:'GET',mode:'cors'}).then(function(r){return r.text();}).then(function(t){var c=t.trim();if(c.charCodeAt(0)===0xFEFF)c=c.slice(1);return JSON.parse(c);}).catch(function(e){return{error:e.message};});}
+function gsCallPost(p){return fetch(GS,{method:'POST',mode:'cors',body:JSON.stringify(p)}).then(function(r){return r.text();}).then(function(t){var c=t.trim();if(c.charCodeAt(0)===0xFEFF)c=c.slice(1);return JSON.parse(c);}).catch(function(e){return{error:e.message};});}
 
 /* INVENTORY */
 function initInventory(){
@@ -1656,7 +1657,7 @@ function saveAdmUser(){
   if(admEditUser){var idx=admUsers.findIndex(function(x){return String(x.id)===admEditUser;});if(idx>=0)admUsers[idx]=data;else admUsers.push(data);}
   else admUsers.push(data);
   saveUsersLocal();
-  gsCall({action:'saveUser',id:id,email:email,name:name,permissions:JSON.stringify(perms)}).then(function(res){
+  gsCallPost({action:'saveUser',id:id,email:email,name:name,permissions:JSON.stringify(perms)}).then(function(res){
     if(res&&res.success)toast('User saved ✅','ok');else toast('Error: '+(res&&res.error||'unknown'),'err');
   });
   closeModal('m-adm-user');
