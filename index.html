@@ -583,6 +583,8 @@ button:focus-visible,input:focus-visible,select:focus-visible{outline:2px solid 
         <div class="admin-card" onclick="admGo('self-deliver')"><div class="admin-card-arrow"><svg viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg></div><div class="admin-card-ico" style="background:var(--leaf-l)">🏍️</div><div><div class="admin-card-title">Self Deliver</div><div class="admin-card-count" id="adm-self-count">0</div><div class="admin-card-sub">Deliveries</div></div></div>
         <div class="admin-card" onclick="admGo('purchase')" style="grid-column:1/-1"><div class="admin-card-arrow"><svg viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg></div><div class="admin-card-ico" style="background:var(--amber-l)">🛒</div><div><div class="admin-card-title">Purchase</div><div class="admin-card-count" id="adm-purchase-count">0</div><div class="admin-card-sub">Entries</div></div></div>
       </div>
+      <!-- Dynamic section cards (injected by JS) -->
+      <div class="admin-grid" id="dyn-dash-cards" style="padding-top:0"></div>
     </div>
     <!-- ADMIN INVENTORY -->
     <div class="screen" id="adm-screen-inventory">
@@ -685,6 +687,38 @@ button:focus-visible,input:focus-visible,select:focus-visible{outline:2px solid 
         </div>
       </div>
     </div>
+
+    <!-- ADMIN SECTIONS MANAGER (full admin only) -->
+    <div class="screen" id="adm-screen-sections">
+      <div class="back-bar"><button class="back-btn" onclick="admGo('dashboard')"><svg viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg>Back</button></div>
+      <div style="padding:0 15px">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px">
+          <div style="display:flex;align-items:center"><div class="sec-title" style="margin:0">Custom Sections</div><span class="count-badge" id="admSectionsCount">0</span></div>
+          <button class="qb" onclick="openSectionModal()">+ New Section</button>
+        </div>
+        <div style="font-size:11px;color:var(--bark-lt);margin-bottom:13px;padding:9px 12px;background:var(--amber-l);border-radius:10px;border:1px solid rgba(184,114,10,.15)">
+          ✨ Create a new sheet section with custom columns. Data automatically syncs with Google Sheets.
+        </div>
+        <div id="admSectionList"></div>
+        <div id="admSectionEmpty" style="display:none">
+          <div class="empty"><div class="empty-ico"><svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg></div><div class="empty-title">No Custom Sections</div><div class="empty-desc">Create your first custom section with any columns you need.</div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- DYNAMIC SECTION DATA VIEW (generated per section) -->
+    <div class="screen" id="adm-screen-dynamic">
+      <div class="back-bar"><button class="back-btn" id="dynBackBtn" onclick="admGo('sections')"><svg viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg>Back</button></div>
+      <div style="padding:0 15px">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:11px">
+          <div style="display:flex;align-items:center"><div class="sec-title" style="margin:0" id="dynSectionTitle">Section</div><span class="count-badge" id="dynRecordCount">0</span></div>
+          <button class="qb" id="dynAddBtn" onclick="openDynRecordModal()">+ Add</button>
+        </div>
+        <div class="srch-box" style="margin:0 0 11px"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg><input type="text" id="dynSearch" placeholder="Search…" oninput="renderDynRecords()"/></div>
+        <div id="dynRecordList"></div>
+        <div id="dynRecordEmpty" style="display:none"><div class="empty"><div class="empty-ico"><svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg></div><div class="empty-title">No Records Yet</div></div></div>
+      </div>
+    </div>
   </div>
   <nav class="nav">
     <button class="ni active" id="adm-nav-dashboard" onclick="admGo('dashboard')"><div class="ni-ico"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg></div><span class="ni-lbl">Dashboard</span></button>
@@ -694,6 +728,7 @@ button:focus-visible,input:focus-visible,select:focus-visible{outline:2px solid 
     <button class="ni" id="adm-nav-self-deliver" onclick="admGo('self-deliver')"><div class="ni-ico"><svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></div><span class="ni-lbl">Self Del</span></button>
     <button class="ni" id="adm-nav-purchase" onclick="admGo('purchase')"><div class="ni-ico"><svg viewBox="0 0 24 24"><path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 01-8 0"/></svg></div><span class="ni-lbl">Purchase</span></button>
     <button class="ni" id="adm-nav-users" onclick="admGo('users')" style="display:none"><div class="ni-ico"><svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75"/></svg></div><span class="ni-lbl">Users</span></button>
+    <button class="ni" id="adm-nav-sections" onclick="admGo('sections')" style="display:none"><div class="ni-ico"><svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/></svg></div><span class="ni-lbl">Sections</span></button>
   </nav>
 </div>
 
@@ -734,8 +769,27 @@ button:focus-visible,input:focus-visible,select:focus-visible{outline:2px solid 
 <div style="display:flex;gap:8px"><button class="btn btn-s" onclick="closeModal('m-adm-pur')" style="flex:.6">Cancel</button><button class="btn btn-p" onclick="saveAdmPur()">Save</button></div>
 </div></div>
 
-<!-- Users Add/Edit Modal -->
-<div class="overlay" id="m-adm-user"><div class="sheet"><div class="sh-handle"></div><div class="sh-title" id="mAdmUserTitle">Add User</div>
+<!-- Section Create/Edit Modal -->
+<div class="overlay" id="m-adm-section"><div class="sheet"><div class="sh-handle"></div><div class="sh-title" id="mSectionTitle">New Section</div>
+<div class="ff"><label class="fl">Section Name *</label><input type="text" class="fi" id="secName" placeholder="e.g. Expenses, Repairs, Leads…"/></div>
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+  <div class="ff"><label class="fl">Icon (emoji)</label><input type="text" class="fi" id="secIcon" placeholder="📄" maxlength="4"/></div>
+</div>
+<div style="font-size:10px;font-weight:700;color:var(--bark-lt);text-transform:uppercase;letter-spacing:.7px;margin-bottom:9px">Columns</div>
+<div id="secColBuilder" style="background:var(--bg);border-radius:var(--r);border:1px solid var(--brd);padding:11px;margin-bottom:11px"></div>
+<button class="btn btn-s" style="margin-bottom:13px;padding:9px" onclick="addSecCol()">+ Add Column</button>
+<div class="err-box" id="secErr"></div>
+<div style="display:flex;gap:8px"><button class="btn btn-s" onclick="closeModal('m-adm-section')" style="flex:.6">Cancel</button><button class="btn btn-p" onclick="saveSectionDef()">Create Section</button></div>
+</div></div>
+
+<!-- Dynamic Record Add/Edit Modal -->
+<div class="overlay" id="m-dyn-record"><div class="sheet"><div class="sh-handle"></div><div class="sh-title" id="mDynRecordTitle">Add Record</div>
+<div id="dynFormFields"></div>
+<div class="err-box" id="dynRecordErr"></div>
+<div style="display:flex;gap:8px"><button class="btn btn-s" onclick="closeModal('m-dyn-record')" style="flex:.6">Cancel</button><button class="btn btn-p" onclick="saveDynRecord()">Save</button></div>
+</div></div>
+
+<div class="overlay" id="m-del-confirm"><div class="sheet"><div class="sh-handle"></div><div class="sh-title" id="mAdmUserTitle">Add User</div>
 <div class="ff"><label class="fl">Email / User ID *</label><input type="email" class="fi" id="admUserEmail" placeholder="e.g. staff@handicraftbazaar.in"/></div>
 <div class="ff"><label class="fl">Name *</label><input type="text" class="fi" id="admUserName" placeholder="e.g. Rahul"/></div>
 <div style="font-size:10px;font-weight:700;color:var(--bark-lt);text-transform:uppercase;letter-spacing:.7px;margin-bottom:11px">Section Permissions</div>
@@ -1643,14 +1697,17 @@ function saveAdmUser(){
   var name=eid('admUserName').value.trim();
   var err=eid('admUserErr');
   if(!email||!name){err.textContent='Email and Name are required.';err.style.display='block';return;}
-  // Prevent saving over hardcoded IDs
   if(email===ADMIN_ID||email===INVENTORY_ID){err.textContent='Cannot add hardcoded system users here.';err.style.display='block';return;}
   err.style.display='none';
-  // Build permissions
   var perms={};
   ALL_SECTIONS.forEach(function(s){
     var v=eid('perm_view_'+s.key);var e=eid('perm_edit_'+s.key);
     perms[s.key]={view:!!(v&&v.checked),edit:!!(e&&e.checked)};
+  });
+  // Include dynamic section permissions
+  admSections.forEach(function(s){
+    var v=eid('perm_view_dyn_'+s.id);var e=eid('perm_edit_dyn_'+s.id);
+    perms['dyn_'+s.id]={view:!!(v&&v.checked),edit:!!(e&&e.checked)};
   });
   var id=admEditUser||String(Date.now());
   var data={id:id,email:email,name:name,permissions:perms};
@@ -1664,7 +1721,320 @@ function saveAdmUser(){
   admRenderUsers();
 }
 
+/* ══════════════════════════════════════════
+   DYNAMIC SECTIONS
+══════════════════════════════════════════ */
+var admSections=[];
+var LS_SEC='hb7_sections';
+var currentDynSection=null;
+var dynRecords=[];
+var dynEditId=null;
+var secColRows=[];
+var editSectionId=null;
+
+function loadSectionsLocal(){try{var s=localStorage.getItem(LS_SEC);if(s)admSections=JSON.parse(s);}catch(e){}}
+function saveSectionsLocal(){try{localStorage.setItem(LS_SEC,JSON.stringify(admSections));}catch(e){}}
+
+var _origLoad3=loadAdminLocal;
+loadAdminLocal=function(){_origLoad3();loadSectionsLocal();};
+var _origSave3=saveAdminLocal;
+saveAdminLocal=function(){_origSave3();saveSectionsLocal();};
+
+var _origSync3=admSyncNow;
+admSyncNow=function(){
+  admSetSS('busy','Syncing…');
+  gsCall({action:'getAdminAll'}).then(function(data){
+    if(data.error)throw new Error(data.error);
+    if(Array.isArray(data.products)){admProducts=data.products.map(function(sp){sp.id=String(sp.id);if(!sp.variants)sp.variants=[];sp.variants.forEach(function(v){v.id=String(v.id);v.stock=Number(v.stock)||0;v.packed=Number(v.packed)||0;v.lowThreshold=Number(v.lowThreshold)||DEFAULT_LOW;});return sp;});}
+    if(Array.isArray(data.rtos))admRtos=data.rtos;
+    if(Array.isArray(data.customOrders))admCustomOrders=data.customOrders;
+    if(Array.isArray(data.cargo))admCargo=data.cargo;
+    if(Array.isArray(data.shiprocket))admShiprocket=data.shiprocket;
+    if(Array.isArray(data.selfDeliver))admSelfDeliver=data.selfDeliver;
+    if(Array.isArray(data.purchase))admPurchase=data.purchase;
+    if(Array.isArray(data.users))admUsers=data.users;
+    if(Array.isArray(data.sections))admSections=data.sections;
+    saveAdminLocal();
+    var now=new Date().toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit'});
+    admSetSS('ok','✅ '+now);admRenderDashboard();buildDynamicNav();toast('Synced ✅','ok');
+  }).catch(function(e){admSetSS('err','❌ Failed');toast('Sync error: '+e.message,'err');});
+};
+
+var _origAdmGo3=admGo;
+admGo=function(name){
+  if((name==='users'||name==='sections')&&currentUser!=='admin'){toast('Access denied','err');return;}
+  if(name.indexOf('dyn_')===0){
+    var secId=name.slice(4);
+    var sec=admSections.find(function(s){return String(s.id)===String(secId);});
+    if(!sec){toast('Section not found','err');return;}
+    if(!canView('dyn_'+secId)){toast('Access denied','err');return;}
+    openDynSection(sec);return;
+  }
+  document.querySelectorAll('#adminApp .screen').forEach(function(s){s.classList.remove('active');});
+  document.querySelectorAll('#adminApp .ni').forEach(function(n){n.classList.remove('active');});
+  var screenEl=eid('adm-screen-'+name);
+  if(!screenEl)return;
+  screenEl.classList.add('active');
+  eid('admSw').scrollTop=0;
+  var nav=eid('adm-nav-'+name);if(nav)nav.classList.add('active');
+  ({dashboard:admRenderDashboard,inventory:admRenderProds,rto:admRenderRTO,'custom-orders':admRenderCO,
+    cargo:admRenderCargo,shiprocket:admRenderShip,'self-deliver':admRenderSelf,
+    purchase:admRenderPurchase,users:admRenderUsers,sections:admRenderSections}[name]||function(){})();
+};
+
+var _origDash3=admRenderDashboard;
+admRenderDashboard=function(){
+  _origDash3();
+  var isAdmin=currentUser==='admin';
+  var usersNav=eid('adm-nav-users');if(usersNav)usersNav.style.display=isAdmin?'':'none';
+  var secNav=eid('adm-nav-sections');if(secNav)secNav.style.display=isAdmin?'':'none';
+  buildDynDashCards();
+  if(currentUser==='restricted'&&currentUserPerms){
+    ALL_SECTIONS.forEach(function(s){
+      var p=currentUserPerms[s.key]||{};
+      var allowed=p.view||p.edit;
+      document.querySelectorAll('[onclick*="admGo(\''+s.key+'\')"]').forEach(function(el){el.style.display=allowed?'':'none';});
+      var card=document.querySelector('.admin-card[onclick*="admGo(\''+s.key+'\')"]');
+      if(card)card.style.display=allowed?'':'none';
+    });
+    admSections.forEach(function(s){
+      var p=currentUserPerms['dyn_'+s.id]||{};
+      var card=eid('dyn-card-'+s.id);if(card)card.style.display=(p.view||p.edit)?'':'none';
+      var nb=eid('adm-nav-dyn-'+s.id);if(nb)nb.style.display=(p.view||p.edit)?'':'none';
+    });
+  }
+};
+
+function buildDynDashCards(){
+  var container=eid('dyn-dash-cards');if(!container)return;
+  if(!admSections.length){container.innerHTML='';return;}
+  container.innerHTML=admSections.map(function(s){
+    var allowed=canView('dyn_'+s.id);
+    return '<div class="admin-card" id="dyn-card-'+s.id+'" onclick="admGo(\'dyn_'+s.id+'\')" style="'+(allowed?'':'display:none')+'">'+
+      '<div class="admin-card-arrow"><svg viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg></div>'+
+      '<div class="admin-card-ico" style="background:var(--blue-l)">'+s.icon+'</div>'+
+      '<div><div class="admin-card-title">'+s.name+'</div>'+
+      '<div class="admin-card-count" id="dyn-dash-count-'+s.id+'">—</div>'+
+      '<div class="admin-card-sub">Custom section</div></div></div>';
+  }).join('');
+}
+
+function buildDynamicNav(){
+  document.querySelectorAll('.ni-dyn').forEach(function(el){el.remove();});
+  var nav=document.querySelector('#adminApp .nav');if(!nav)return;
+  var usersBtn=eid('adm-nav-users');
+  admSections.forEach(function(s){
+    var allowed=canView('dyn_'+s.id);
+    var btn=document.createElement('button');
+    btn.className='ni ni-dyn';btn.id='adm-nav-dyn-'+s.id;
+    btn.style.display=allowed?'':'none';
+    btn.onclick=function(){admGo('dyn_'+s.id);};
+    btn.innerHTML='<div class="ni-ico"><span style="font-size:16px">'+s.icon+'</span></div><span class="ni-lbl" style="font-size:8px;overflow:hidden;text-overflow:ellipsis;max-width:44px">'+s.name+'</span>';
+    nav.insertBefore(btn,usersBtn);
+  });
+}
+
+/* ─── Sections List ─── */
+function admRenderSections(){
+  loadSectionsLocal();
+  var el=eid('admSectionList'),emp=eid('admSectionEmpty'),cnt=eid('admSectionsCount');
+  if(cnt)cnt.textContent=admSections.length;
+  if(!admSections.length){if(el)el.innerHTML='';if(emp)emp.style.display='block';return;}
+  if(emp)emp.style.display='none';
+  el.innerHTML=admSections.map(function(s){
+    var colTags=s.columns.map(function(c){
+      var tc={text:'var(--bark-lt)',number:'var(--leaf)',date:'var(--blue)',dropdown:'var(--purple)',phone:'var(--amber)'};
+      return '<span style="font-size:9px;background:var(--surf3);color:'+(tc[c.type]||'var(--bark-lt)')+';padding:2px 7px;border-radius:20px;font-weight:600">'+c.label+'</span>';
+    }).join('');
+    return '<div class="rto-adm-card" style="margin-bottom:10px">'+
+      '<div style="display:flex;align-items:center;gap:11px;margin-bottom:9px">'+
+      '<div style="width:44px;height:44px;border-radius:13px;background:var(--blue-l);display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0">'+s.icon+'</div>'+
+      '<div style="flex:1;min-width:0"><div style="font-size:15px;font-weight:700;color:var(--bark);font-family:Fraunces,serif">'+s.name+'</div>'+
+      '<div style="font-size:10px;color:var(--bark-lt);margin-top:2px">'+s.columns.length+' columns · '+s.sheetName+'</div></div></div>'+
+      (s.columns.length?'<div style="display:flex;flex-wrap:wrap;gap:5px;margin-bottom:10px">'+colTags+'</div>':'')+
+      '<div style="display:flex;gap:6px">'+
+      '<button class="rto-act" style="background:var(--blue-l);color:var(--blue-d)" onclick="openDynSection(admSections.find(function(x){return x.id===\''+s.id+'\'}))">📂 Open</button>'+
+      '<button class="rto-act" style="background:var(--red-l);color:var(--red-d)" onclick="confirmDelSection(\''+s.id+'\')">🗑 Delete</button>'+
+      '</div></div>';
+  }).join('');
+}
+
+/* ─── Column Builder ─── */
+function openSectionModal(id){
+  editSectionId=id||null;secColRows=[];
+  eid('mSectionTitle').textContent=id?'Edit Section':'New Section';
+  eid('secErr').style.display='none';
+  if(id){var s=admSections.find(function(x){return String(x.id)===String(id);});
+    if(s){eid('secName').value=s.name;eid('secIcon').value=s.icon;secColRows=s.columns.map(function(c){return Object.assign({},c,{_id:String(Date.now()+Math.random())});});}}
+  else{eid('secName').value='';eid('secIcon').value='📄';}
+  renderSecColBuilder();openModal('m-adm-section');
+}
+function addSecCol(){secColRows.push({_id:String(Date.now()),label:'',type:'text',options:''});renderSecColBuilder();}
+function removeSecCol(id){secColRows=secColRows.filter(function(c){return c._id!==id;});renderSecColBuilder();}
+function setSecCol(id,field,val){
+  var c=secColRows.find(function(r){return r._id===id;});if(!c)return;c[field]=val;
+  if(field==='type'){var op=eid('secOptRow_'+id);if(op)op.style.display=val==='dropdown'?'block':'none';}
+}
+function renderSecColBuilder(){
+  var b=eid('secColBuilder');
+  if(!secColRows.length){b.innerHTML='<div style="text-align:center;font-size:11.5px;color:var(--bark-lt);padding:10px">No columns. Click below to add.</div>';return;}
+  b.innerHTML=secColRows.map(function(c){return(
+    '<div class="vrow" style="padding:10px 0"><div style="display:flex;align-items:flex-start;gap:7px">'+
+    '<div style="flex:1;display:grid;grid-template-columns:1fr 1fr;gap:7px">'+
+    '<div><label class="fl" style="font-size:9px">Column Name *</label>'+
+    '<input class="fi" style="padding:8px 10px;font-size:12px" placeholder="e.g. Amount" value="'+(c.label||'')+'" oninput="setSecCol(\''+c._id+'\',\'label\',this.value)"/></div>'+
+    '<div><label class="fl" style="font-size:9px">Type</label>'+
+    '<select class="fi fsel" style="padding:8px 10px;font-size:12px" onchange="setSecCol(\''+c._id+'\',\'type\',this.value)">'+
+    ['text','number','date','phone','dropdown'].map(function(t){return'<option value="'+t+'"'+(c.type===t?' selected':'')+'>'+t.charAt(0).toUpperCase()+t.slice(1)+'</option>';}).join('')+
+    '</select></div>'+
+    '<div id="secOptRow_'+c._id+'" style="grid-column:1/-1;'+(c.type==='dropdown'?'':'display:none')+'">'+
+    '<label class="fl" style="font-size:9px">Options (comma separated)</label>'+
+    '<input class="fi" style="padding:8px 10px;font-size:12px" placeholder="e.g. Pending,Done" value="'+(c.options||'')+'" oninput="setSecCol(\''+c._id+'\',\'options\',this.value)"/></div>'+
+    '</div><button class="vrow-del" onclick="removeSecCol(\''+c._id+'\')">✕</button></div></div>');
+  }).join('');
+}
+function saveSectionDef(){
+  var name=eid('secName').value.trim(),icon=eid('secIcon').value.trim()||'📄';
+  var err=eid('secErr');
+  if(!name){err.textContent='Section name required.';err.style.display='block';return;}
+  if(!secColRows.length){err.textContent='Add at least one column.';err.style.display='block';return;}
+  if(secColRows.find(function(c){return !c.label.trim();})){err.textContent='All columns need a name.';err.style.display='block';return;}
+  err.style.display='none';
+  var cols=secColRows.map(function(c){return{label:c.label.trim(),type:c.type||'text',options:c.options||''};});
+  var id=editSectionId||String(Date.now());
+  var sheetName='DS_'+name.replace(/[^a-zA-Z0-9 _]/g,'').trim().replace(/\s+/g,'_').slice(0,47);
+  var secData={id:id,name:name,icon:icon,columns:cols,sheetName:sheetName};
+  if(editSectionId){var idx=admSections.findIndex(function(x){return String(x.id)===editSectionId;});if(idx>=0)admSections[idx]=secData;else admSections.push(secData);}
+  else admSections.push(secData);
+  saveSectionsLocal();
+  gsCallPost({action:'saveSection',id:id,name:name,icon:icon,columns:JSON.stringify(cols)}).then(function(res){
+    if(res&&res.success){
+      var s=admSections.find(function(x){return String(x.id)===id;});
+      if(s&&res.sheetName)s.sheetName=res.sheetName;
+      saveSectionsLocal();toast('Section created ✅','ok');buildDynamicNav();admRenderSections();
+    }else toast('Error: '+(res&&res.error||'unknown'),'err');
+  });
+  closeModal('m-adm-section');buildDynamicNav();admRenderSections();
+}
+function confirmDelSection(id){pendingDelType='section';pendingDelId=id;eid('delConfirmBtn').onclick=executeAdmDel;openModal('m-del-confirm');}
+
+/* ─── Dynamic Records ─── */
+function openDynSection(sec){
+  if(!sec)return;
+  currentDynSection=sec;dynRecords=[];
+  eid('dynSectionTitle').textContent=sec.icon+' '+sec.name;
+  var addBtn=eid('dynAddBtn');if(addBtn)addBtn.style.display=canEdit('dyn_'+sec.id)?'':'none';
+  eid('dynBackBtn').onclick=function(){currentUser==='admin'?admGo('sections'):admGo('dashboard');};
+  document.querySelectorAll('#adminApp .screen').forEach(function(s){s.classList.remove('active');});
+  document.querySelectorAll('#adminApp .ni').forEach(function(n){n.classList.remove('active');});
+  var dynScreen=eid('adm-screen-dynamic');if(dynScreen)dynScreen.classList.add('active');
+  eid('admSw').scrollTop=0;
+  var nav=eid('adm-nav-dyn-'+sec.id);if(nav)nav.classList.add('active');
+  eid('dynRecordList').innerHTML='<div style="text-align:center;padding:30px;color:var(--bark-lt);font-size:12px">Loading…</div>';
+  gsCall({action:'readDynamic',sheetName:sec.sheetName}).then(function(res){
+    if(res&&res.success){dynRecords=res.records||[];renderDynRecords();}
+    else{toast('Error loading data','err');eid('dynRecordList').innerHTML='';}
+  });
+}
+function renderDynRecords(){
+  if(!currentDynSection)return;
+  var q=(eid('dynSearch')?eid('dynSearch').value:'').toLowerCase();
+  var cols=currentDynSection.columns;
+  var list=dynRecords.filter(function(r){if(!q)return true;return cols.some(function(c){return String(r[c.label]||'').toLowerCase().indexOf(q)!==-1;});});
+  var el=eid('dynRecordList'),emp=eid('dynRecordEmpty'),cnt=eid('dynRecordCount');
+  if(cnt)cnt.textContent=list.length;
+  if(!list.length){el.innerHTML='';if(emp)emp.style.display='block';return;}
+  if(emp)emp.style.display='none';
+  var canEd=canEdit('dyn_'+currentDynSection.id);
+  el.innerHTML=list.map(function(r){
+    var fields=cols.map(function(c){
+      var val=r[c.label]||'—';
+      var display=c.type==='phone'&&val!=='—'?'<a href="tel:'+val+'" style="color:var(--amber);font-weight:700;text-decoration:none">📞 '+val+'</a>':
+        '<span style="color:'+(c.type==='number'?'var(--leaf)':c.type==='date'?'var(--blue)':'var(--bark)')+';font-weight:'+(c.type==='number'?'700':'500')+'">'+val+'</span>';
+      return '<div style="display:flex;justify-content:space-between;align-items:center;padding:5px 0;border-bottom:1px solid var(--brd)">'+
+        '<span style="font-size:10px;font-weight:700;color:var(--bark-lt);text-transform:uppercase;letter-spacing:.4px">'+c.label+'</span>'+display+'</div>';
+    }).join('');
+    return '<div class="rto-adm-card" style="margin-bottom:9px">'+fields+
+      (canEd?'<div style="display:flex;gap:6px;margin-top:10px">'+
+      '<button class="rto-act" style="background:var(--amber-l);color:var(--amber-d)" onclick="openDynRecordModal(\''+r.id+'\')">✏️ Edit</button>'+
+      '<button class="rto-act" style="background:var(--red-l);color:var(--red-d)" onclick="confirmDelDynRecord(\''+r.id+'\')">🗑</button></div>':'')+
+      '</div>';
+  }).join('');
+}
+function openDynRecordModal(id){
+  if(!currentDynSection)return;
+  dynEditId=id||null;
+  eid('mDynRecordTitle').textContent=id?'Edit Record':'Add Record';
+  eid('dynRecordErr').style.display='none';
+  var existing=id?dynRecords.find(function(r){return String(r.id)===String(id);})||{}:{};
+  eid('dynFormFields').innerHTML=currentDynSection.columns.map(function(c){
+    var val=existing[c.label]||'';
+    var input=c.type==='date'?'<input type="date" class="fi" id="dynf_'+c.label+'" value="'+val+'"/>':
+      c.type==='number'?'<input type="number" class="fi" id="dynf_'+c.label+'" placeholder="0" value="'+val+'"/>':
+      c.type==='phone'?'<input type="tel" class="fi" id="dynf_'+c.label+'" placeholder="9876543210" value="'+val+'" maxlength="15"/>':
+      c.type==='dropdown'?'<select class="fi fsel" id="dynf_'+c.label+'">'+(c.options||'').split(',').map(function(o){o=o.trim();return o?'<option value="'+o+'"'+(val===o?' selected':'')+'>'+o+'</option>':'';}).join('')+'</select>':
+      '<input type="text" class="fi" id="dynf_'+c.label+'" placeholder="'+c.label+'" value="'+val+'"/>';
+    return '<div class="ff"><label class="fl">'+c.label+'</label>'+input+'</div>';
+  }).join('');
+  openModal('m-dyn-record');
+}
+function saveDynRecord(){
+  if(!currentDynSection)return;
+  var record={};
+  currentDynSection.columns.forEach(function(c){var el=eid('dynf_'+c.label);record[c.label]=el?el.value.trim():'';});
+  var id=dynEditId||String(Date.now());record.id=id;
+  if(dynEditId){var idx=dynRecords.findIndex(function(r){return String(r.id)===dynEditId;});if(idx>=0)dynRecords[idx]=record;else dynRecords.push(record);}
+  else dynRecords.push(record);
+  renderDynRecords();
+  gsCallPost({action:'saveDynamic',sheetName:currentDynSection.sheetName,id:id,record:JSON.stringify(record)}).then(function(res){
+    if(res&&res.success)toast('Saved ✅','ok');else toast('Error saving','err');
+  });
+  closeModal('m-dyn-record');
+}
+function confirmDelDynRecord(id){pendingDelType='dynRecord';pendingDelId=id;eid('delConfirmBtn').onclick=executeAdmDel;openModal('m-del-confirm');}
+
+var _origExecDel2=executeAdmDel;
+executeAdmDel=function(){
+  if(pendingDelType==='section'){
+    closeModal('m-del-confirm');var id=pendingDelId;
+    gsCallPost({action:'deleteSection',id:id,deleteSheet:'false'}).then(function(){
+      admSections=admSections.filter(function(s){return String(s.id)!==String(id);});
+      saveSectionsLocal();buildDynamicNav();admRenderSections();toast('Section deleted','err');
+    });
+  }else if(pendingDelType==='dynRecord'){
+    closeModal('m-del-confirm');var rid=pendingDelId;
+    gsCall({action:'deleteDynamic',sheetName:currentDynSection.sheetName,id:rid}).then(function(){
+      dynRecords=dynRecords.filter(function(r){return String(r.id)!==String(rid);});
+      renderDynRecords();toast('Deleted','err');
+    });
+  }else{_origExecDel2();}
+};
+
+// Patch openAdmUserModal to append dynamic section perms
+var _origOpenUserModal=openAdmUserModal;
+openAdmUserModal=function(id){
+  _origOpenUserModal(id);
+  if(!admSections.length)return;
+  var b=eid('userPermsBuilder');if(!b)return;
+  var perms={};
+  if(id){var u=admUsers.find(function(x){return String(x.id)===String(id);});if(u)perms=u.permissions||{};}
+  var dynHtml='<div style="font-size:10px;font-weight:700;color:var(--bark-lt);text-transform:uppercase;letter-spacing:.7px;margin:12px 0 8px;padding-top:10px;border-top:1px solid var(--brd)">Custom Sections</div>';
+  dynHtml+=admSections.map(function(s){
+    var p=perms['dyn_'+s.id]||{};
+    return '<div style="display:flex;align-items:center;justify-content:space-between;padding:9px 0;border-bottom:1px solid var(--brd)">'+
+      '<div style="font-size:13px;font-weight:600;color:var(--bark)">'+s.icon+' '+s.name+'</div>'+
+      '<div style="display:flex;gap:12px;flex-shrink:0">'+
+      '<label style="display:flex;align-items:center;gap:5px;font-size:11px;font-weight:700;color:var(--bark-lt);cursor:pointer">'+
+      '<input type="checkbox" id="perm_view_dyn_'+s.id+'" style="width:16px;height:16px;accent-color:var(--clay)"'+(p.view?' checked':'')+'>View</label>'+
+      '<label style="display:flex;align-items:center;gap:5px;font-size:11px;font-weight:700;color:var(--bark-lt);cursor:pointer">'+
+      '<input type="checkbox" id="perm_edit_dyn_'+s.id+'" style="width:16px;height:16px;accent-color:var(--leaf)"'+(p.edit?' checked':'')+'>Edit</label>'+
+      '</div></div>';
+  }).join('');
+  b.innerHTML+=dynHtml;
+};
+
 checkAuth();
+
 </script>
 </body>
 </html>
