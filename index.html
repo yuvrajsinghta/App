@@ -820,6 +820,8 @@ var currentOTP='',otpTimer=null,resendCountdown=0;
 var LS_P='hb7_p',LS_A='hb7_a';
 var LS_AR='hb7_admr',LS_ACO='hb7_admco',LS_ACG='hb7_cargo',LS_ASH='hb7_ship',LS_ASF='hb7_self',LS_AP='hb7_admp';
 var LS_USR='hb7_users';
+var LS_TOK='hb7_token'; // server session token
+var sessionToken=''; // active session token
 
 // All sections a restricted user can access
 var ALL_SECTIONS=[
@@ -838,7 +840,18 @@ function fT(ts){return new Date(ts).toLocaleTimeString('en-IN',{hour:'2-digit',m
 function fD(ts){var d=new Date(ts),t=new Date();return d.toDateString()===t.toDateString()?'Today':d.toLocaleDateString('en-IN',{day:'numeric',month:'short'});}
 
 /* AUTH */
-function checkAuth(){var s=localStorage.getItem(LS_AUTH);if(s){try{var d=JSON.parse(s);if(d.ok&&Date.now()-d.t<7776000000){currentUser=d.role;currentUserPerms=d.permissions||null;if(currentUser==='admin')showAdminApp(true);else if(currentUser==='restricted')showAdminApp(false);else showInvApp();return;}}catch(e){}}showLogin();}
+function checkAuth(){
+  var s=localStorage.getItem(LS_AUTH);
+  if(s){try{var d=JSON.parse(s);
+    if(d.ok&&Date.now()-d.t<7776000000){
+      currentUser=d.role;currentUserPerms=d.permissions||null;
+      sessionToken=localStorage.getItem(LS_TOK)||'';
+      if(currentUser==='admin')showAdminApp(true);
+      else if(currentUser==='restricted')showAdminApp(false);
+      else showInvApp();return;
+    }}catch(e){}}
+  showLogin();
+}
 function showLogin(){eid('loginPage').style.display='flex';eid('inventoryApp').style.display='none';eid('adminApp').style.display='none';}
 function showInvApp(){eid('loginPage').style.display='none';eid('inventoryApp').style.display='flex';eid('adminApp').style.display='none';initInventory();}
 function showAdminApp(isFullAdmin){
@@ -859,7 +872,7 @@ function applyRestrictedUI(){
     if(navEl)navEl.style.display=(p.view||p.edit)?'':'none';
   });
 }
-function logout(){localStorage.removeItem(LS_AUTH);currentOTP='';currentUserPerms=null;window._pendingRestrictedUser=null;clearInterval(otpTimer);showStep(1);eid('loginUserId').value='';[0,1,2,3,4,5].forEach(function(i){eid('otp'+i).value='';});showLogin();}
+function logout(){localStorage.removeItem(LS_AUTH);localStorage.removeItem(LS_TOK);currentOTP='';sessionToken='';currentUserPerms=null;window._pendingRestrictedUser=null;clearInterval(otpTimer);showStep(1);eid('loginUserId').value='';[0,1,2,3,4,5].forEach(function(i){eid('otp'+i).value='';});showLogin();}
 
 function checkUserId(){
   var val=eid('loginUserId').value.trim().toLowerCase();
@@ -868,24 +881,18 @@ function checkUserId(){
   err.style.display='none';
   var btn=document.querySelector('#step1 .login-btn');
   btn.disabled=true;btn.textContent='Checking…';
-
-  // Check hardcoded IDs first
-  if(val===INVENTORY_ID||val===ADMIN_ID){
-    fetch(GS+'?action=sendOTP&email='+encodeURIComponent(val)).then(function(r){return r.text();}).then(function(t){
-      try{var d=JSON.parse(t.trim().replace(/^\uFEFF/,''));if(d.success){currentOTP=String(d.otp||'');showStep(2);startResendTimer();}else{err.textContent='Error: '+(d.error||'Could not send OTP');err.style.display='block';}}catch(e){err.textContent='Server error.';err.style.display='block';}
-      btn.disabled=false;btn.textContent='Continue →';
-    }).catch(function(){err.textContent='Network error.';err.style.display='block';btn.disabled=false;btn.textContent='Continue →';});
-    return;
-  }
-
-  // Check restricted users sheet
+  // Check if valid user (server validates hardcoded + restricted users)
   fetch(GS+'?action=checkUser&email='+encodeURIComponent(val)).then(function(r){return r.text();}).then(function(t){
     try{
       var d=JSON.parse(t.trim().replace(/^\uFEFF/,''));
       if(d.found){
-        // Valid restricted user — send OTP
+        // Valid user — send OTP
         fetch(GS+'?action=sendOTP&email='+encodeURIComponent(val)).then(function(r2){return r2.text();}).then(function(t2){
-          try{var d2=JSON.parse(t2.trim().replace(/^\uFEFF/,''));if(d2.success){currentOTP=String(d2.otp||'');window._pendingRestrictedUser=d;showStep(2);startResendTimer();}else{err.textContent='OTP error.';err.style.display='block';}}catch(e2){err.textContent='Server error.';err.style.display='block';}
+          try{
+            var d2=JSON.parse(t2.trim().replace(/^\uFEFF/,''));
+            if(d2.success){showStep(2);startResendTimer();}
+            else{err.textContent='OTP error: '+(d2.error||'try again');err.style.display='block';}
+          }catch(e){err.textContent='Server error.';err.style.display='block';}
           btn.disabled=false;btn.textContent='Continue →';
         });
       }else{
@@ -903,19 +910,33 @@ function verifyOTP(){
   var entered=[0,1,2,3,4,5].map(function(i){return eid('otp'+i).value;}).join('');
   var err=eid('step2Err');
   if(entered.length!==6){err.textContent='Enter all 6 digits.';err.style.display='block';return;}
-  if(entered===currentOTP){
-    err.style.display='none';clearInterval(otpTimer);
-    var loginVal=eid('loginUserId').value.trim().toLowerCase();
-    var role,perms=null;
-    if(loginVal===ADMIN_ID){role='admin';}
-    else if(loginVal===INVENTORY_ID){role='inventory';}
-    else if(window._pendingRestrictedUser){role='restricted';perms=window._pendingRestrictedUser.permissions;window._pendingRestrictedUser=null;}
-    else{err.textContent='Session expired. Please try again.';err.style.display='block';return;}
-    currentUser=role;currentUserPerms=perms;
-    localStorage.setItem(LS_AUTH,JSON.stringify({ok:true,t:Date.now(),role:role,permissions:perms}));
-    toast('Welcome! 🙏','ok');
-    if(role==='admin')showAdminApp(true);else if(role==='restricted')showAdminApp(false);else showInvApp();
-  }else{err.textContent='Wrong OTP.';err.style.display='block';[0,1,2,3,4,5].forEach(function(i){eid('otp'+i).value='';});eid('otp0').focus();}
+  var btn=document.querySelector('#step2 .login-btn');
+  btn.disabled=true;btn.textContent='Verifying…';
+  var loginEmail=eid('loginUserId').value.trim().toLowerCase();
+  // Call server to verify OTP and get session token
+  fetch(GS+'?action=verifyOTP&email='+encodeURIComponent(loginEmail)+'&otp='+encodeURIComponent(entered))
+    .then(function(r){return r.text();}).then(function(t){
+      try{
+        var d=JSON.parse(t.trim().replace(/^\uFEFF/,''));
+        if(d.success){
+          err.style.display='none';clearInterval(otpTimer);
+          sessionToken=d.token||'';
+          currentUser=d.role;
+          currentUserPerms=d.permissions||null;
+          localStorage.setItem(LS_TOK,sessionToken);
+          localStorage.setItem(LS_AUTH,JSON.stringify({ok:true,t:Date.now(),role:d.role,permissions:d.permissions||null}));
+          toast('Welcome! 🙏','ok');
+          window._pendingRestrictedUser=null;
+          if(d.role==='admin')showAdminApp(true);
+          else if(d.role==='restricted')showAdminApp(false);
+          else showInvApp();
+        }else{
+          err.textContent=d.error||'Wrong OTP.';err.style.display='block';
+          [0,1,2,3,4,5].forEach(function(i){eid('otp'+i).value='';});eid('otp0').focus();
+        }
+      }catch(e){err.textContent='Server error.';err.style.display='block';}
+      btn.disabled=false;btn.textContent='Verify OTP ✓';
+    }).catch(function(){err.textContent='Network error.';err.style.display='block';btn.disabled=false;btn.textContent='Verify OTP ✓';});
 }
 function startResendTimer(){resendCountdown=60;var rb=eid('resendBtn');rb.disabled=true;clearInterval(otpTimer);otpTimer=setInterval(function(){resendCountdown--;eid('resendTimer').textContent=resendCountdown;if(resendCountdown<=0){clearInterval(otpTimer);rb.disabled=false;rb.textContent='Resend OTP';}},1000);}
 function resendOTP(){var val=eid('loginUserId').value.trim();eid('resendBtn').disabled=true;fetch(GS+'?action=sendOTP&email='+encodeURIComponent(val)).then(function(r){return r.text();}).then(function(t){try{var d=JSON.parse(t.trim().replace(/^\uFEFF/,''));if(d.success){currentOTP=String(d.otp||'');toast('OTP resent ✅','ok');startResendTimer();}}catch(e){}eid('resendBtn').disabled=false;}).catch(function(){eid('resendBtn').disabled=false;});}
@@ -927,8 +948,8 @@ function closeModal(id){eid(id).classList.remove('open');}
 function toggleDark(){var h=document.documentElement,d=h.getAttribute('data-theme')==='dark';h.setAttribute('data-theme',d?'light':'dark');if(eid('darkBtn'))eid('darkBtn').textContent=d?'🌙':'☀️';if(eid('admDarkBtn'))eid('admDarkBtn').textContent=d?'🌙':'☀️';}
 function adjQ(n,id){var el=eid(id);el.value=Math.max(0,(parseInt(el.value)||0)+n);}
 function addToQ(id,n){var el=eid(id);el.value=Math.max(0,(parseInt(el.value)||0)+n);}
-function gsCall(p){var url=GS+'?'+new URLSearchParams(p).toString();return fetch(url,{method:'GET',mode:'cors'}).then(function(r){return r.text();}).then(function(t){var c=t.trim();if(c.charCodeAt(0)===0xFEFF)c=c.slice(1);return JSON.parse(c);}).catch(function(e){return{error:e.message};});}
-function gsCallPost(p){return fetch(GS,{method:'POST',mode:'cors',body:JSON.stringify(p)}).then(function(r){return r.text();}).then(function(t){var c=t.trim();if(c.charCodeAt(0)===0xFEFF)c=c.slice(1);return JSON.parse(c);}).catch(function(e){return{error:e.message};});}
+function gsCall(p){var params=Object.assign({},p);if(sessionToken)params.token=sessionToken;var url=GS+'?'+new URLSearchParams(params).toString();return fetch(url,{method:'GET',mode:'cors'}).then(function(r){return r.text();}).then(function(t){var c=t.trim();if(c.charCodeAt(0)===0xFEFF)c=c.slice(1);return JSON.parse(c);}).catch(function(e){return{error:e.message};});}
+function gsCallPost(p){var payload=Object.assign({},p);if(sessionToken)payload.token=sessionToken;return fetch(GS,{method:'POST',mode:'cors',body:JSON.stringify(payload)}).then(function(r){return r.text();}).then(function(t){var c=t.trim();if(c.charCodeAt(0)===0xFEFF)c=c.slice(1);return JSON.parse(c);}).catch(function(e){return{error:e.message};});}
 
 /* INVENTORY */
 function initInventory(){
@@ -1817,6 +1838,14 @@ function buildDynDashCards(){
       '<div class="admin-card-count" id="dyn-dash-count-'+s.id+'">—</div>'+
       '<div class="admin-card-sub">Custom section</div></div></div>';
   }).join('');
+  // Fetch record counts for each section
+  admSections.forEach(function(s){
+    if(!canView('dyn_'+s.id))return;
+    gsCall({action:'readDynamic',sheetName:s.sheetName,sectionId:s.id}).then(function(res){
+      var el=eid('dyn-dash-count-'+s.id);
+      if(el&&res&&res.success)el.textContent=(res.records||[]).length;
+    });
+  });
 }
 
 function buildDynamicNav(){
@@ -1931,9 +1960,9 @@ function openDynSection(sec){
   eid('admSw').scrollTop=0;
   var nav=eid('adm-nav-dyn-'+sec.id);if(nav)nav.classList.add('active');
   eid('dynRecordList').innerHTML='<div style="text-align:center;padding:30px;color:var(--bark-lt);font-size:12px">Loading…</div>';
-  gsCall({action:'readDynamic',sheetName:sec.sheetName}).then(function(res){
+  gsCall({action:'readDynamic',sheetName:sec.sheetName,sectionId:sec.id}).then(function(res){
     if(res&&res.success){dynRecords=res.records||[];renderDynRecords();}
-    else{toast('Error loading data','err');eid('dynRecordList').innerHTML='';}
+    else{toast('Error loading: '+(res&&res.error||'unknown'),'err');eid('dynRecordList').innerHTML='';}
   });
 }
 function renderDynRecords(){
@@ -1946,18 +1975,45 @@ function renderDynRecords(){
   if(!list.length){el.innerHTML='';if(emp)emp.style.display='block';return;}
   if(emp)emp.style.display='none';
   var canEd=canEdit('dyn_'+currentDynSection.id);
+  // Find a "name/title" field — first text column
+  var titleCol=cols.find(function(c){return c.type==='text';})||cols[0];
+  var dateCol=cols.find(function(c){return c.type==='date';});
+  var numCols=cols.filter(function(c){return c.type==='number';});
+  var phoneCols=cols.filter(function(c){return c.type==='phone';});
   el.innerHTML=list.map(function(r){
-    var fields=cols.map(function(c){
-      var val=r[c.label]||'—';
-      var display=c.type==='phone'&&val!=='—'?'<a href="tel:'+val+'" style="color:var(--amber);font-weight:700;text-decoration:none">📞 '+val+'</a>':
-        '<span style="color:'+(c.type==='number'?'var(--leaf)':c.type==='date'?'var(--blue)':'var(--bark)')+';font-weight:'+(c.type==='number'?'700':'500')+'">'+val+'</span>';
-      return '<div style="display:flex;justify-content:space-between;align-items:center;padding:5px 0;border-bottom:1px solid var(--brd)">'+
-        '<span style="font-size:10px;font-weight:700;color:var(--bark-lt);text-transform:uppercase;letter-spacing:.4px">'+c.label+'</span>'+display+'</div>';
-    }).join('');
-    return '<div class="rto-adm-card" style="margin-bottom:9px">'+fields+
-      (canEd?'<div style="display:flex;gap:6px;margin-top:10px">'+
+    var titleVal=titleCol?String(r[titleCol.label]||'—'):'Record';
+    // Meta fields row
+    var metaHtml=cols.filter(function(c){return c!==titleCol;}).map(function(c){
+      var val=String(r[c.label]||'');if(!val||val==='—')return'';
+      if(c.type==='phone')return'<div class="rto-adm-mi">'+c.label+': <span><a href="tel:'+val+'" style="color:var(--amber);font-weight:700;text-decoration:none">📞 '+val+'</a></span></div>';
+      if(c.type==='date')return'<div class="rto-adm-mi">'+c.label+': <span>'+fSD(val)+'</span></div>';
+      if(c.type==='number')return'<div class="rto-adm-mi">'+c.label+': <span style="color:var(--leaf);font-weight:700">'+val+'</span></div>';
+      if(c.type==='dropdown'){
+        var chipColors={'Pending':'var(--amber)','Done':'var(--leaf)','Cancelled':'var(--red)','Active':'var(--blue)'};
+        var cc=chipColors[val]||'var(--bark-lt)';
+        return'<div class="rto-adm-mi">'+c.label+': <span style="background:'+cc+'22;color:'+cc+';padding:1px 8px;border-radius:20px;font-size:9px;font-weight:700">'+val+'</span></div>';
+      }
+      return'<div class="rto-adm-mi">'+c.label+': <span>'+val+'</span></div>';
+    }).filter(Boolean).join('');
+    // Phone call button if any phone col
+    var phoneVal=phoneCols.length?String(r[phoneCols[0].label]||''):'';
+    var callBtn=phoneVal?'<a href="tel:'+phoneVal+'" style="padding:5px 11px;border-radius:8px;background:var(--leaf-l);color:var(--leaf-d);font-size:11px;font-weight:700;text-decoration:none;flex-shrink:0">Call</a>':'';
+    // Number highlight if any num col
+    var numHtml=numCols.length?'<div style="text-align:right;flex-shrink:0"><div style="font-size:24px;font-weight:700;font-family:Fraunces,serif;color:var(--leaf);line-height:1">'+String(r[numCols[0].label]||'0')+'</div><div style="font-size:9px;color:var(--bark-lt)">'+numCols[0].label+'</div></div>':'';
+    return '<div class="rto-adm-card">'+
+      '<div style="display:flex;align-items:flex-start;justify-content:space-between;gap:9px;margin-bottom:'+(metaHtml?'9px':'4px')+'">'+
+      '<div style="flex:1;min-width:0">'+
+      '<div class="rto-adm-name">'+titleVal+'</div>'+
+      (dateCol&&r[dateCol.label]?'<div style="font-size:10px;color:var(--bark-lt);margin-top:2px">📅 '+fSD(r[dateCol.label])+'</div>':'')+
+      '</div>'+numHtml+'</div>'+
+      (metaHtml?'<div class="rto-adm-meta" style="margin-bottom:9px">'+metaHtml+'</div>':'')+
+      (phoneVal?'<div style="display:flex;align-items:center;gap:8px;padding:8px 10px;background:var(--bg);border-radius:10px;border:1px solid var(--brd);margin-bottom:9px">'+
+      '<div style="width:32px;height:32px;border-radius:50%;background:var(--blue-l);display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;color:var(--blue-d);flex-shrink:0">'+titleVal[0].toUpperCase()+'</div>'+
+      '<div style="flex:1"><div style="font-size:12.5px;font-weight:700;color:var(--bark)">'+titleVal+'</div><div style="font-size:10.5px;color:var(--bark-lt)">📞 '+phoneVal+'</div></div>'+callBtn+'</div>':'')+
+      (canEd?'<div style="display:flex;gap:6px;margin-top:'+(phoneVal?'0':'9px')+'">'+
       '<button class="rto-act" style="background:var(--amber-l);color:var(--amber-d)" onclick="openDynRecordModal(\''+r.id+'\')">✏️ Edit</button>'+
-      '<button class="rto-act" style="background:var(--red-l);color:var(--red-d)" onclick="confirmDelDynRecord(\''+r.id+'\')">🗑</button></div>':'')+
+      '<button class="rto-act" style="background:var(--red-l);color:var(--red-d)" onclick="confirmDelDynRecord(\''+r.id+'\')">🗑</button>'+
+      '</div>':'')+
       '</div>';
   }).join('');
 }
@@ -1986,12 +2042,17 @@ function saveDynRecord(){
   if(dynEditId){var idx=dynRecords.findIndex(function(r){return String(r.id)===dynEditId;});if(idx>=0)dynRecords[idx]=record;else dynRecords.push(record);}
   else dynRecords.push(record);
   renderDynRecords();
-  gsCallPost({action:'saveDynamic',sheetName:currentDynSection.sheetName,id:id,record:JSON.stringify(record)}).then(function(res){
-    if(res&&res.success)toast('Saved ✅','ok');else toast('Error saving','err');
+  gsCallPost({action:'saveDynamic',sheetName:currentDynSection.sheetName,sectionId:currentDynSection.id,id:id,record:JSON.stringify(record)}).then(function(res){
+    if(res&&res.success)toast('Saved ✅','ok');else toast('Error: '+(res&&res.error||'unknown'),'err');
   });
   closeModal('m-dyn-record');
 }
-function confirmDelDynRecord(id){pendingDelType='dynRecord';pendingDelId=id;eid('delConfirmBtn').onclick=executeAdmDel;openModal('m-del-confirm');}
+
+function confirmDelDynRecord(id){
+  pendingDelType='dynRecord';pendingDelId=id;
+  eid('delConfirmBtn').onclick=executeAdmDel;
+  openModal('m-del-confirm');
+}
 
 var _origExecDel2=executeAdmDel;
 executeAdmDel=function(){
@@ -2003,7 +2064,7 @@ executeAdmDel=function(){
     });
   }else if(pendingDelType==='dynRecord'){
     closeModal('m-del-confirm');var rid=pendingDelId;
-    gsCall({action:'deleteDynamic',sheetName:currentDynSection.sheetName,id:rid}).then(function(){
+    gsCall({action:'deleteDynamic',sheetName:currentDynSection.sheetName,sectionId:currentDynSection.id,id:rid}).then(function(){
       dynRecords=dynRecords.filter(function(r){return String(r.id)!==String(rid);});
       renderDynRecords();toast('Deleted','err');
     });
