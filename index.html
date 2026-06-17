@@ -703,6 +703,15 @@ button:focus-visible,input:focus-visible,select:focus-visible{outline:2px solid 
         <div id="admSectionEmpty" style="display:none">
           <div class="empty"><div class="empty-ico"><svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg></div><div class="empty-title">No Custom Sections</div><div class="empty-desc">Create your first custom section with any columns you need.</div></div>
         </div>
+        <div class="sec-hdr" style="padding:0;margin-top:18px"><div class="sec-title">Module Relations</div></div>
+        <div style="font-size:11px;color:var(--bark-lt);margin:8px 0 13px;padding:9px 12px;background:var(--blue-l);border-radius:10px;border:1px solid rgba(26,95,173,.15)">
+          🔗 Optionally link two modules together (e.g. Amazon Claims ↔ Inventory by ProductID). Linking is fully optional — modules work independently unless you create a relation here.
+        </div>
+        <button class="qb" style="margin-bottom:11px" onclick="openRelationModal()">+ New Relation</button>
+        <div id="admRelationList"></div>
+        <div id="admRelationEmpty" style="display:none">
+          <div class="empty"><div class="empty-ico"><svg viewBox="0 0 24 24"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg></div><div class="empty-title">No Relations Yet</div><div class="empty-desc">Modules currently work fully independently.</div></div>
+        </div>
       </div>
     </div>
 
@@ -789,13 +798,24 @@ button:focus-visible,input:focus-visible,select:focus-visible{outline:2px solid 
 <div style="display:flex;gap:8px"><button class="btn btn-s" onclick="closeModal('m-dyn-record')" style="flex:.6">Cancel</button><button class="btn btn-p" onclick="saveDynRecord()">Save</button></div>
 </div></div>
 
-<div class="overlay" id="m-del-confirm"><div class="sheet"><div class="sh-handle"></div><div class="sh-title" id="mAdmUserTitle">Add User</div>
+<div class="overlay" id="m-adm-user"><div class="sheet"><div class="sh-handle"></div><div class="sh-title" id="mAdmUserTitle">Add User</div>
 <div class="ff"><label class="fl">Email / User ID *</label><input type="email" class="fi" id="admUserEmail" placeholder="e.g. staff@handicraftbazaar.in"/></div>
 <div class="ff"><label class="fl">Name *</label><input type="text" class="fi" id="admUserName" placeholder="e.g. Rahul"/></div>
 <div style="font-size:10px;font-weight:700;color:var(--bark-lt);text-transform:uppercase;letter-spacing:.7px;margin-bottom:11px">Section Permissions</div>
 <div id="userPermsBuilder" style="background:var(--bg);border-radius:var(--r);border:1px solid var(--brd);padding:12px;margin-bottom:13px"></div>
 <div class="err-box" id="admUserErr"></div>
 <div style="display:flex;gap:8px"><button class="btn btn-s" onclick="closeModal('m-adm-user')" style="flex:.6">Cancel</button><button class="btn btn-p" onclick="saveAdmUser()">Save User</button></div>
+</div></div>
+
+<!-- Module Relation Create/Edit Modal -->
+<div class="overlay" id="m-adm-relation"><div class="sheet"><div class="sh-handle"></div><div class="sh-title" id="mRelationTitle">New Relation</div>
+<div class="ff"><label class="fl">Source Module *</label><select class="fi fsel" id="relSourceModule" onchange="onRelModuleChange('source')"></select></div>
+<div class="ff"><label class="fl">Source Field *</label><select class="fi fsel" id="relSourceField"></select></div>
+<div class="ff"><label class="fl">Target Module *</label><select class="fi fsel" id="relTargetModule" onchange="onRelModuleChange('target')"></select></div>
+<div class="ff"><label class="fl">Target Field *</label><select class="fi fsel" id="relTargetField"></select></div>
+<div class="ff"><label class="fl">Status</label><select class="fi fsel" id="relActive"><option value="true">✅ Active</option><option value="false">⏸️ Paused</option></select></div>
+<div class="err-box" id="relErr"></div>
+<div style="display:flex;gap:8px"><button class="btn btn-s" onclick="closeModal('m-adm-relation')" style="flex:.6">Cancel</button><button class="btn btn-p" onclick="saveRelationDef()">Save Relation</button></div>
 </div></div>
 
 <div class="overlay" id="m-del-confirm"><div class="confirm-box"><div class="sh-handle" style="margin-bottom:14px"></div><div class="confirm-icon"><svg viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6"/></svg></div><div style="text-align:center;margin-bottom:18px"><div style="font-size:17px;font-weight:700;color:var(--bark);font-family:Fraunces,serif;margin-bottom:6px">Delete Record?</div><div style="font-size:12px;color:var(--bark-lt)">This will be permanently removed.</div></div><div style="display:flex;gap:8px"><button class="btn btn-s" onclick="closeModal('m-del-confirm')" style="flex:1">Cancel</button><button class="btn btn-d" id="delConfirmBtn" style="flex:1">Delete</button></div></div></div>
@@ -2093,6 +2113,217 @@ openAdmUserModal=function(id){
   }).join('');
   b.innerHTML+=dynHtml;
 };
+
+/* ══════════════════════════════════════════
+   MODULE RELATIONS (optional, admin-only)
+   Purely additive: does not touch any existing module's
+   own data, sheets, or workflow. Existing modules remain
+   fully independent unless admin creates a relation here.
+══════════════════════════════════════════ */
+var admRelations=[];
+var LS_REL='hb7_relations';
+var editRelationId=null;
+
+// Fixed field lists for existing modules (their schema is stable/known)
+var EXISTING_MODULE_FIELDS={
+  'inventory':     ['productId','productName','category','color','size','sku','stock','boxReady','price'],
+  'rto':           ['id','productName','rtoDate','deliveredDate','company','orderId','trackingId','status','safeTClaim','remark'],
+  'custom-orders': ['id','orderId','custName','custPhone','prodName','size','receivedDate','readyDate','dispatchDate','status','remark'],
+  'cargo':         ['awbNo','client','number','date','status','remark'],
+  'shiprocket':    ['awbNo','client','number','date','status','remark'],
+  'self-deliver':  ['date','clientName','number','orderId','productName','deliver','remark'],
+  'purchase':      ['id','date','prodName','category','color','size','vendorName','qty','damage']
+};
+var EXISTING_MODULE_LABELS={
+  'inventory':'📦 Inventory','rto':'🔁 RTO & Return','custom-orders':'📋 Custom Orders',
+  'cargo':'🚚 Cargo Complaint','shiprocket':'🚀 Shiprocket','self-deliver':'🏍️ Self Deliver','purchase':'🛒 Purchase'
+};
+
+function loadRelationsLocal(){try{var r=localStorage.getItem(LS_REL);if(r)admRelations=JSON.parse(r);}catch(e){}}
+function saveRelationsLocal(){try{localStorage.setItem(LS_REL,JSON.stringify(admRelations));}catch(e){}}
+
+var _origLoad4=loadAdminLocal;
+loadAdminLocal=function(){_origLoad4();loadRelationsLocal();};
+var _origSave4=saveAdminLocal;
+saveAdminLocal=function(){_origSave4();saveRelationsLocal();};
+
+// admGo already routes to 'sections' screen which now also renders relations
+var _origRenderSections=admRenderSections;
+admRenderSections=function(){
+  _origRenderSections();
+  admRenderRelations();
+};
+
+// Build the list of all modules (existing + dynamic) for the relation dropdowns
+function getAllRelationModules(){
+  var mods=Object.keys(EXISTING_MODULE_LABELS).map(function(k){return{key:k,label:EXISTING_MODULE_LABELS[k],fields:EXISTING_MODULE_FIELDS[k]};});
+  admSections.forEach(function(s){
+    mods.push({key:'dyn_'+s.id,label:(s.icon||'📄')+' '+s.name,fields:s.columns.map(function(c){return c.label;})});
+  });
+  return mods;
+}
+
+function moduleLabel(key){
+  if(EXISTING_MODULE_LABELS[key])return EXISTING_MODULE_LABELS[key];
+  if(key&&key.indexOf('dyn_')===0){
+    var sec=admSections.find(function(s){return 'dyn_'+s.id===key;});
+    if(sec)return (sec.icon||'📄')+' '+sec.name;
+  }
+  return key||'—';
+}
+
+function admRenderRelations(){
+  loadRelationsLocal();
+  var el=eid('admRelationList'),emp=eid('admRelationEmpty');
+  if(!el)return;
+  if(!admRelations.length){el.innerHTML='';if(emp)emp.style.display='block';return;}
+  if(emp)emp.style.display='none';
+  el.innerHTML=admRelations.map(function(r){
+    var statusColor=r.active?'var(--leaf)':'var(--bark-lt)';
+    var statusBg=r.active?'var(--leaf-l)':'var(--surf3)';
+    return '<div class="rto-adm-card" style="margin-bottom:10px">'+
+      '<div style="display:flex;align-items:center;justify-content:space-between;gap:9px;margin-bottom:9px">'+
+      '<div style="display:flex;align-items:center;gap:8px;flex:1;min-width:0;font-size:13px;font-weight:700;color:var(--bark)">'+
+      '<span>'+moduleLabel(r.sourceModule)+'</span>'+
+      '<svg viewBox="0 0 24 24" style="width:16px;height:16px;stroke:var(--bark-lt);fill:none;stroke-width:2;flex-shrink:0"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>'+
+      '<span>'+moduleLabel(r.targetModule)+'</span>'+
+      '</div>'+
+      '<span style="font-size:9px;font-weight:700;padding:3px 9px;border-radius:20px;background:'+statusBg+';color:'+statusColor+';flex-shrink:0">'+(r.active?'Active':'Paused')+'</span>'+
+      '</div>'+
+      '<div class="rto-adm-meta" style="margin-bottom:9px">'+
+      '<div class="rto-adm-mi">Match: <span>'+r.sourceField+' ↔ '+r.targetField+'</span></div>'+
+      '</div>'+
+      '<div style="display:flex;gap:6px">'+
+      '<button class="rto-act" style="background:var(--amber-l);color:var(--amber-d)" onclick="openRelationModal(\''+r.id+'\')">✏️ Edit</button>'+
+      '<button class="rto-act" style="background:var(--red-l);color:var(--red-d)" onclick="confirmDelRelation(\''+r.id+'\')">🗑 Delete</button>'+
+      '</div></div>';
+  }).join('');
+}
+
+function populateRelModuleSelects(){
+  var mods=getAllRelationModules();
+  var opts=mods.map(function(m){return '<option value="'+m.key+'">'+m.label+'</option>';}).join('');
+  eid('relSourceModule').innerHTML=opts;
+  eid('relTargetModule').innerHTML=opts;
+}
+
+function onRelModuleChange(which){
+  var modKey=which==='source'?eid('relSourceModule').value:eid('relTargetModule').value;
+  var fieldSel=which==='source'?eid('relSourceField'):eid('relTargetField');
+  var mods=getAllRelationModules();
+  var mod=mods.find(function(m){return m.key===modKey;});
+  var fields=mod?mod.fields:[];
+  fieldSel.innerHTML=fields.map(function(f){return '<option value="'+f+'">'+f+'</option>';}).join('');
+}
+
+function openRelationModal(id){
+  editRelationId=id||null;
+  eid('mRelationTitle').textContent=id?'Edit Relation':'New Relation';
+  eid('relErr').style.display='none';
+  populateRelModuleSelects();
+  if(id){
+    var r=admRelations.find(function(x){return String(x.id)===String(id);});
+    if(r){
+      eid('relSourceModule').value=r.sourceModule;onRelModuleChange('source');
+      setTimeout(function(){eid('relSourceField').value=r.sourceField;},0);
+      eid('relTargetModule').value=r.targetModule;onRelModuleChange('target');
+      setTimeout(function(){eid('relTargetField').value=r.targetField;},0);
+      eid('relActive').value=r.active?'true':'false';
+    }
+  }else{
+    onRelModuleChange('source');onRelModuleChange('target');
+    eid('relActive').value='true';
+  }
+  openModal('m-adm-relation');
+}
+
+function saveRelationDef(){
+  var sourceModule=eid('relSourceModule').value;
+  var sourceField=eid('relSourceField').value;
+  var targetModule=eid('relTargetModule').value;
+  var targetField=eid('relTargetField').value;
+  var active=eid('relActive').value==='true';
+  var err=eid('relErr');
+  if(!sourceModule||!targetModule||!sourceField||!targetField){err.textContent='All fields are required.';err.style.display='block';return;}
+  if(sourceModule===targetModule){err.textContent='Source and target must be different modules.';err.style.display='block';return;}
+  err.style.display='none';
+  var id=editRelationId||String(Date.now());
+  var data={id:id,sourceModule:sourceModule,targetModule:targetModule,sourceField:sourceField,targetField:targetField,active:active};
+  if(editRelationId){var idx=admRelations.findIndex(function(x){return String(x.id)===editRelationId;});if(idx>=0)admRelations[idx]=data;else admRelations.push(data);}
+  else admRelations.push(data);
+  saveRelationsLocal();
+  gsCallPost({action:'saveRelation',id:id,sourceModule:sourceModule,targetModule:targetModule,sourceField:sourceField,targetField:targetField,active:active}).then(function(res){
+    if(res&&res.success)toast('Relation saved ✅','ok');else toast('Error: '+(res&&res.error||'unknown'),'err');
+  });
+  closeModal('m-adm-relation');
+  admRenderRelations();
+}
+
+function confirmDelRelation(id){pendingDelType='relation';pendingDelId=id;eid('delConfirmBtn').onclick=executeAdmDel;openModal('m-del-confirm');}
+
+var _origExecDel3=executeAdmDel;
+executeAdmDel=function(){
+  if(pendingDelType==='relation'){
+    closeModal('m-del-confirm');var id=pendingDelId;
+    gsCallPost({action:'deleteRelation',id:id}).then(function(){
+      admRelations=admRelations.filter(function(r){return String(r.id)!==String(id);});
+      saveRelationsLocal();admRenderRelations();toast('Relation deleted','err');
+    });
+  }else{_origExecDel3();}
+};
+
+// Hook relations into admSyncNow so they stay fresh from the sheet
+var _origSync4=admSyncNow;
+admSyncNow=function(){
+  admSetSS('busy','Syncing…');
+  gsCall({action:'getAdminAll'}).then(function(data){
+    if(data.error)throw new Error(data.error);
+    if(Array.isArray(data.products)){admProducts=data.products.map(function(sp){sp.id=String(sp.id);if(!sp.variants)sp.variants=[];sp.variants.forEach(function(v){v.id=String(v.id);v.stock=Number(v.stock)||0;v.packed=Number(v.packed)||0;v.lowThreshold=Number(v.lowThreshold)||DEFAULT_LOW;});return sp;});}
+    if(Array.isArray(data.rtos))admRtos=data.rtos;
+    if(Array.isArray(data.customOrders))admCustomOrders=data.customOrders;
+    if(Array.isArray(data.cargo))admCargo=data.cargo;
+    if(Array.isArray(data.shiprocket))admShiprocket=data.shiprocket;
+    if(Array.isArray(data.selfDeliver))admSelfDeliver=data.selfDeliver;
+    if(Array.isArray(data.purchase))admPurchase=data.purchase;
+    if(Array.isArray(data.users))admUsers=data.users;
+    if(Array.isArray(data.sections))admSections=data.sections;
+    saveAdminLocal();
+    var now=new Date().toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit'});
+    admSetSS('ok','✅ '+now);admRenderDashboard();buildDynamicNav();
+    // Relations are admin-only metadata — fetch separately
+    if(currentUser==='admin'){
+      gsCall({action:'getRelations'}).then(function(rres){
+        if(rres&&Array.isArray(rres.relations)){admRelations=rres.relations;saveRelationsLocal();}
+      });
+    }
+    toast('Synced ✅','ok');
+  }).catch(function(e){admSetSS('err','❌ Failed');toast('Sync error: '+e.message,'err');});
+};
+
+/* ─── Linked records display (read-only, additive) ───
+   Call this from any record card's detail view to show linked data,
+   if (and only if) a relation exists for that module. No errors if
+   no relation is configured — simply shows nothing extra. */
+function renderLinkedRecordsBlock(sourceModuleKey, sourceFieldValue, containerId){
+  var container=eid(containerId);
+  if(!container)return;
+  gsCall({action:'getLinkedRecords',sourceModule:sourceModuleKey,sourceValue:sourceFieldValue}).then(function(res){
+    if(!res||!res.success||!res.relations||!res.relations.length){container.innerHTML='';return;}
+    var html=res.relations.map(function(rel){
+      if(!rel.matches||!rel.matches.length)return '';
+      var modLabel=moduleLabel(rel.targetModule);
+      var rows=rel.matches.slice(0,5).map(function(m){
+        var keys=Object.keys(m).filter(function(k){return k!=='id'&&k!=='_row';}).slice(0,4);
+        var line=keys.map(function(k){return m[k];}).filter(Boolean).join(' · ');
+        return '<div style="font-size:11.5px;color:var(--bark);padding:5px 0;border-bottom:1px solid var(--brd)">'+line+'</div>';
+      }).join('');
+      return '<div style="margin-top:9px;padding:9px 11px;background:var(--bg);border-radius:10px;border:1px solid var(--brd)">'+
+        '<div style="font-size:10px;font-weight:700;color:var(--bark-lt);text-transform:uppercase;letter-spacing:.5px;margin-bottom:5px">🔗 Linked: '+modLabel+' ('+rel.matches.length+')</div>'+
+        rows+'</div>';
+    }).join('');
+    container.innerHTML=html;
+  });
+}
 
 checkAuth();
 
