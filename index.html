@@ -1869,18 +1869,10 @@ function buildDynDashCards(){
 }
 
 function buildDynamicNav(){
+  // Dynamic sections are NOT added to the bottom nav (it would overflow
+  // as sections grow unbounded). They remain accessible via the
+  // Dashboard cards and the Sections screen "Open" button instead.
   document.querySelectorAll('.ni-dyn').forEach(function(el){el.remove();});
-  var nav=document.querySelector('#adminApp .nav');if(!nav)return;
-  var usersBtn=eid('adm-nav-users');
-  admSections.forEach(function(s){
-    var allowed=canView('dyn_'+s.id);
-    var btn=document.createElement('button');
-    btn.className='ni ni-dyn';btn.id='adm-nav-dyn-'+s.id;
-    btn.style.display=allowed?'':'none';
-    btn.onclick=function(){admGo('dyn_'+s.id);};
-    btn.innerHTML='<div class="ni-ico"><span style="font-size:16px">'+s.icon+'</span></div><span class="ni-lbl" style="font-size:8px;overflow:hidden;text-overflow:ellipsis;max-width:44px">'+s.name+'</span>';
-    nav.insertBefore(btn,usersBtn);
-  });
 }
 
 /* ─── Sections List ─── */
@@ -2277,7 +2269,16 @@ var _origSync4=admSyncNow;
 admSyncNow=function(){
   admSetSS('busy','Syncing…');
   gsCall({action:'getAdminAll'}).then(function(data){
-    if(data.error)throw new Error(data.error);
+    if(data.error){
+      // Session expired/invalid — force re-login instead of looping errors
+      if(String(data.error).toLowerCase().indexOf('unauthorized')!==-1||String(data.error).toLowerCase().indexOf('expired')!==-1){
+        admSetSS('err','❌ Session expired');
+        toast('Session expired. Please log in again.','err',4000);
+        setTimeout(function(){logout();},1500);
+        return;
+      }
+      throw new Error(data.error);
+    }
     if(Array.isArray(data.products)){admProducts=data.products.map(function(sp){sp.id=String(sp.id);if(!sp.variants)sp.variants=[];sp.variants.forEach(function(v){v.id=String(v.id);v.stock=Number(v.stock)||0;v.packed=Number(v.packed)||0;v.lowThreshold=Number(v.lowThreshold)||DEFAULT_LOW;});return sp;});}
     if(Array.isArray(data.rtos))admRtos=data.rtos;
     if(Array.isArray(data.customOrders))admCustomOrders=data.customOrders;
