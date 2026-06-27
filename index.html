@@ -527,6 +527,38 @@ button:focus-visible,input:focus-visible,select:focus-visible{outline:2px solid 
         <div class="card" style="padding:11px 13px" id="todayLog"></div>
       </div>
     </div>
+    <!-- INVENTORY PURCHASE -->
+    <div class="screen" id="screen-purchase">
+      <div class="back-bar"><button class="back-btn" onclick="invGo('dashboard')"><svg viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg>Back</button></div>
+      <div style="padding:0 15px 11px">
+        <div class="tg-grp">
+          <button class="tg-opt active" id="invPurViewDate" onclick="invSetPurView('date')">📅 Date Wise</button>
+          <button class="tg-opt" id="invPurViewVendor" onclick="invSetPurView('vendor')">👤 Vendor Wise</button>
+        </div>
+        <div style="display:flex;gap:8px;margin-bottom:11px">
+          <select class="fi fsel" id="invPurMonthFilter" onchange="invRenderPurchase()" style="flex:1;padding:9px 13px;font-size:12px">
+            <option value="">All Months</option>
+            <option value="1">January</option><option value="2">February</option>
+            <option value="3">March</option><option value="4">April</option>
+            <option value="5">May</option><option value="6">June</option>
+            <option value="7">July</option><option value="8">August</option>
+            <option value="9">September</option><option value="10">October</option>
+            <option value="11">November</option><option value="12">December</option>
+          </select>
+          <select class="fi fsel" id="invPurYearFilter" onchange="invRenderPurchase()" style="flex:0.7;padding:9px 13px;font-size:12px">
+            <option value="">All Years</option>
+            <option value="2024">2024</option><option value="2025">2025</option><option value="2026">2026</option>
+          </select>
+        </div>
+        <div class="srch-box" style="margin:0 0 11px"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg><input type="text" id="invPurSearch" placeholder="Search product, vendor…" oninput="invRenderPurchase()"/></div>
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:11px">
+          <div style="display:flex;align-items:center"><div class="sec-title" style="margin:0">Purchase Entries</div><span class="count-badge" id="invPurCount">0</span></div>
+          <button class="qb" onclick="openInvPurModal()">+ Add</button>
+        </div>
+      </div>
+      <div id="invPurList" style="padding:0 15px"></div>
+      <div id="invPurEmpty" style="display:none"><div class="empty"><div class="empty-ico"><svg viewBox="0 0 24 24"><path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 01-8 0"/></svg></div><div class="empty-title">No Purchase Entries</div><div class="empty-desc">Add a new purchase entry.</div></div></div>
+    </div>
   </div>
   <nav class="nav">
     <button class="ni active" id="inv-nav-dashboard" onclick="invGo('dashboard')"><div class="ni-ico"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg></div><span class="ni-lbl">Home</span></button>
@@ -590,7 +622,9 @@ button:focus-visible,input:focus-visible,select:focus-visible{outline:2px solid 
     <div class="screen" id="adm-screen-inventory">
       <div class="back-bar"><button class="back-btn" onclick="admGo('dashboard')"><svg viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg>Back</button></div>
       <div class="srch-box"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg><input type="text" id="admSearchInput" placeholder="Search products…" oninput="admRenderProds()"/></div>
-      <div style="padding:0 15px"><div style="display:flex;align-items:center;margin-bottom:11px"><div class="sec-title" style="margin:0">Products</div><span class="count-badge" id="admProdCount">0</span></div><div id="admProductList"></div></div>
+      <div class="cat-tabs" id="admCatTabs"></div>
+      <div class="filter-row" id="admFilterRow"></div>
+      <div style="padding:0 15px"><div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:11px"><div style="display:flex;align-items:center"><div class="sec-title" style="margin:0">Products</div><span class="count-badge" id="admProdCount">0</span></div><button class="qb" onclick="openAdmAddProduct()">+ Add</button></div><div id="admProductList"></div></div>
     </div>
     <!-- ADMIN RTO -->
     <div class="screen" id="adm-screen-rto">
@@ -743,11 +777,11 @@ button:focus-visible,input:focus-visible,select:focus-visible{outline:2px solid 
 
 <!-- OVERLAYS INVENTORY -->
 <div class="overlay" id="m-lowstock"><div class="sheet"><div class="sh-handle"></div><div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px"><div class="sh-title" style="margin:0">🔔 Low Stock Alert</div><button class="qb" onclick="closeModal('m-lowstock')">Close</button></div><div id="lowStockList"></div></div></div>
-<div class="overlay" id="m-product"><div class="sheet"><div class="sh-handle"></div><div class="sh-title" id="mProdTitle">Add Product</div><div class="ff"><label class="fl">Category</label><select class="fi fsel" id="pCat"><option>Kitchen</option><option>Bathroom</option><option>Tulsi Pot</option><option>Decorative</option><option>Idols</option><option>Other</option></select></div><div class="ff"><label class="fl">Product Name</label><input type="text" class="fi" id="pName" placeholder="e.g. Kundi, Ganesh Idol…"/></div><div class="ff"><label class="fl">Emoji</label><input type="text" class="fi" id="pEmoji" placeholder="e.g. 🏺 🪴 🗿" maxlength="4"/></div><div style="font-size:10px;font-weight:700;color:var(--bark-lt);text-transform:uppercase;letter-spacing:.7px;margin-bottom:9px">Variants</div><div class="var-builder" id="varBuilder"></div><button class="btn btn-s" style="margin-bottom:13px;padding:9px" onclick="addVarRow()">+ Add Variant</button><div class="err-box" id="pErr"></div><div style="display:flex;gap:8px"><button class="btn btn-s" onclick="closeModal('m-product')" style="flex:.6">Cancel</button><button class="btn btn-p" onclick="saveProd()">Save</button></div></div></div>
+<div class="overlay" id="m-product"><div class="sheet"><div class="sh-handle"></div><div class="sh-title" id="mProdTitle">Add Product</div><div class="ff"><label class="fl">Category</label><select class="fi fsel" id="pCat"><option>Kitchen</option><option>Bathroom</option><option>Tulsi Pot</option><option>Decorative</option><option>Idols</option><option>Other</option></select></div><div class="ff"><label class="fl">Product Name</label><input type="text" class="fi" id="pName" placeholder="e.g. Kundi, Ganesh Idol…"/></div><div class="ff"><label class="fl">Emoji</label><input type="text" class="fi" id="pEmoji" placeholder="e.g. 🏺 🪴 🗿" maxlength="4"/></div><div style="font-size:10px;font-weight:700;color:var(--bark-lt);text-transform:uppercase;letter-spacing:.7px;margin-bottom:9px">Variants</div><div class="var-builder" id="varBuilder"></div><button class="btn btn-s" style="margin-bottom:13px;padding:9px" onclick="dispAddVarRow()">+ Add Variant</button><div class="err-box" id="pErr"></div><div style="display:flex;gap:8px"><button class="btn btn-s" onclick="closeModal('m-product')" style="flex:.6">Cancel</button><button class="btn btn-p" onclick="dispSaveProd()">Save</button></div></div></div>
 <div class="overlay" id="m-quick"><div class="sheet"><div class="sh-handle"></div><div class="sh-title" id="mQuickTitle">Move to Box</div><div style="background:var(--bg);border-radius:13px;padding:12px 13px;margin-bottom:13px;border:1px solid var(--brd)"><div style="font-size:10px;font-weight:700;color:var(--bark-lt);text-transform:uppercase;letter-spacing:.5px">Variant</div><div style="font-size:15px;font-weight:700;color:var(--bark);margin-top:3px;font-family:Fraunces,serif" id="qVarName">—</div><div style="display:flex;gap:14px;margin-top:7px"><span style="font-size:11px;color:var(--bark-lt)">Stock:<b id="qStock" style="color:var(--bark)"> 0</b></span><span style="font-size:11px;color:var(--bark-lt)">Box:<b id="qPacked" style="color:var(--leaf)"> 0</b></span><span style="font-size:11px;color:var(--bark-lt)">Left:<b id="qRemain" style="color:var(--amber)"> 0</b></span></div></div><div class="ff"><label class="fl" id="qQtyLbl">Quantity</label><div class="adj-row"><button class="adj-btn" onclick="adjQ(-5,'quickQty')">−5</button><button class="adj-btn" onclick="adjQ(-1,'quickQty')">−</button><input type="number" class="adj-inp" id="quickQty" placeholder="0" min="1"/><button class="adj-btn" onclick="adjQ(1,'quickQty')">+</button><button class="adj-btn" onclick="adjQ(5,'quickQty')">+5</button></div><div class="qbs" id="qBtns"></div></div><div class="err-box" id="qErr"></div><button class="btn btn-p" id="qSubmit" onclick="submitQuick()">Confirm</button></div></div>
-<div class="overlay" id="m-edit-variant"><div class="sheet"><div class="sh-handle"></div><div class="sh-title" id="mEditVarTitle">Edit Variant</div><div class="ff"><label class="fl">Color</label><input type="text" class="fi" id="evColor"/></div><div class="ff"><label class="fl">Size</label><input type="text" class="fi" id="evSize"/></div><div class="ff"><label class="fl">SKU</label><input type="text" class="fi" id="evSku"/></div><div style="display:grid;grid-template-columns:1fr 1fr;gap:8px"><div class="ff"><label class="fl">Stock</label><input type="number" class="fi" id="evStock" min="0"/></div><div class="ff"><label class="fl">Box Ready</label><input type="number" class="fi" id="evPacked" min="0"/></div></div><div class="ff"><label class="fl">Price ₹</label><input type="number" class="fi" id="evPrice" min="0"/></div><div class="err-box" id="evErr"></div><div style="display:flex;gap:8px"><button class="btn btn-s" onclick="closeModal('m-edit-variant')" style="flex:.6">Cancel</button><button class="btn btn-p" onclick="saveEditVariant()">Save</button></div></div></div>
+<div class="overlay" id="m-edit-variant"><div class="sheet"><div class="sh-handle"></div><div class="sh-title" id="mEditVarTitle">Edit Variant</div><div class="ff"><label class="fl">Color</label><input type="text" class="fi" id="evColor"/></div><div class="ff"><label class="fl">Size</label><input type="text" class="fi" id="evSize"/></div><div class="ff"><label class="fl">SKU</label><input type="text" class="fi" id="evSku"/></div><div style="display:grid;grid-template-columns:1fr 1fr;gap:8px"><div class="ff"><label class="fl">Stock</label><input type="number" class="fi" id="evStock" min="0"/></div><div class="ff"><label class="fl">Box Ready</label><input type="number" class="fi" id="evPacked" min="0"/></div></div><div class="ff"><label class="fl">Price ₹</label><input type="number" class="fi" id="evPrice" min="0"/></div><div class="err-box" id="evErr"></div><div style="display:flex;gap:8px"><button class="btn btn-s" onclick="closeModal('m-edit-variant')" style="flex:.6">Cancel</button><button class="btn btn-p" onclick="dispSaveEditVariant()">Save</button></div></div></div>
 <div class="overlay" id="m-del"><div class="confirm-box"><div class="sh-handle" style="margin-bottom:14px"></div><div class="confirm-icon"><svg viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6"/></svg></div><div style="text-align:center;margin-bottom:18px"><div style="font-size:17px;font-weight:700;color:var(--bark);font-family:Fraunces,serif;margin-bottom:6px">Delete Product?</div><div style="font-size:12px;color:var(--bark-lt)">Remove <b id="delName">this product</b> from Sheet.</div></div><div style="display:flex;gap:8px"><button class="btn btn-s" onclick="closeModal('m-del')" style="flex:1">Cancel</button><button class="btn btn-d" onclick="deleteProduct()" style="flex:1">Delete</button></div></div></div>
-<div class="overlay" id="m-inv-fab"><div class="sheet"><div class="sh-handle"></div><div class="sh-title">Quick Action</div><div style="display:flex;flex-direction:column;gap:8px"><button class="btn btn-p" onclick="closeModal('m-inv-fab');openAddProduct()">➕ Add New Product</button><button class="btn btn-g" onclick="closeModal('m-inv-fab');invGo('entry');setET('pack')">📦 Move to Box</button><button class="btn btn-d" onclick="closeModal('m-inv-fab');invGo('entry');setET('sale')">🛒 Dispatch Entry</button><button class="btn btn-s" onclick="closeModal('m-inv-fab');syncNow()">🔄 Sync Now</button></div></div></div>
+<div class="overlay" id="m-inv-fab"><div class="sheet"><div class="sh-handle"></div><div class="sh-title">Quick Action</div><div style="display:flex;flex-direction:column;gap:8px"><button class="btn btn-p" onclick="closeModal('m-inv-fab');openAddProduct()">➕ Add New Product</button><button class="btn btn-g" onclick="closeModal('m-inv-fab');invGo('entry');setET('pack')">📦 Move to Box</button><button class="btn btn-d" onclick="closeModal('m-inv-fab');invGo('entry');setET('sale')">🛒 Dispatch Entry</button><button class="btn btn-b" onclick="closeModal('m-inv-fab');invGo('purchase')">🧾 Purchase Entry</button><button class="btn btn-s" onclick="closeModal('m-inv-fab');syncNow()">🔄 Sync Now</button></div></div></div>
 
 <!-- OVERLAYS ADMIN -->
 <div class="overlay" id="m-adm-rto"><div class="sheet"><div class="sh-handle"></div><div class="sh-title" id="mAdmRtoTitle">Add RTO</div><div class="ff"><label class="fl">Product Name *</label><input type="text" class="fi" id="admRtoProd" placeholder="e.g. 6 White Ganesh"/></div><div style="display:grid;grid-template-columns:1fr 1fr;gap:8px"><div class="ff"><label class="fl">RTO Date</label><input type="date" class="fi" id="admRtoDate"/></div><div class="ff"><label class="fl">Delivered Date</label><input type="date" class="fi" id="admRtoDelDate"/></div></div><div class="ff"><label class="fl">Company</label><select class="fi fsel" id="admRtoCompany"><option>Amazon</option><option>Cargo</option><option>Shiprocket</option><option>Meesho</option><option>Flipkart</option><option>Other</option></select></div><div class="ff"><label class="fl">Order ID</label><input type="text" class="fi" id="admRtoOrderId" placeholder="Order ID"/></div><div class="ff"><label class="fl">Tracking ID</label><input type="text" class="fi" id="admRtoTrackId" placeholder="Tracking ID"/></div><div class="ff"><label class="fl">Status</label><select class="fi fsel" id="admRtoStatus"><option value="">— Select —</option><option>Delivered</option><option>In transit</option><option>Pending</option><option>Returned</option></select></div><div class="ff"><label class="fl">Safe-T Claim</label><select class="fi fsel" id="admRtoSafet"><option value="">— Select —</option><option>Yes</option><option>No</option><option>Pending</option></select></div><div class="ff"><label class="fl">Remark</label><input type="text" class="fi" id="admRtoRemark" placeholder="Any notes…"/></div><div class="err-box" id="admRtoErr"></div><div style="display:flex;gap:8px"><button class="btn btn-s" onclick="closeModal('m-adm-rto')" style="flex:.6">Cancel</button><button class="btn btn-p" onclick="saveAdmRTO()">Save</button></div></div></div>
@@ -818,6 +852,18 @@ button:focus-visible,input:focus-visible,select:focus-visible{outline:2px solid 
 <div style="display:flex;gap:8px"><button class="btn btn-s" onclick="closeModal('m-adm-relation')" style="flex:.6">Cancel</button><button class="btn btn-p" onclick="saveRelationDef()">Save Relation</button></div>
 </div></div>
 
+<!-- Inventory Purchase Add/Edit Modal -->
+<div class="overlay" id="m-inv-pur"><div class="sheet"><div class="sh-handle"></div><div class="sh-title" id="mInvPurTitle">Add Purchase</div>
+<div class="ff"><label class="fl">Date *</label><input type="date" class="fi" id="invPurDate"/></div>
+<div class="ff"><label class="fl">Product Name *</label><input type="text" class="fi" id="invPurProd" placeholder="e.g. White Kundi"/></div>
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px"><div class="ff"><label class="fl">Category</label><select class="fi fsel" id="invPurCat"><option>Kitchen</option><option>Bathroom</option><option>Tulsi Pot</option><option>Decorative</option><option>Idols</option><option>Other</option></select></div><div class="ff"><label class="fl">Color</label><input type="text" class="fi" id="invPurColor" placeholder="e.g. White"/></div></div>
+<div class="ff"><label class="fl">Size</label><input type="text" class="fi" id="invPurSize" placeholder="e.g. 4 Inch"/></div>
+<div class="ff"><label class="fl">Vendor Name *</label><input type="text" class="fi" id="invPurVendor" placeholder="e.g. Shakil"/></div>
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px"><div class="ff"><label class="fl">Quantity *</label><input type="number" class="fi" id="invPurQty" placeholder="0" min="1"/></div><div class="ff"><label class="fl">Damage Product</label><input type="number" class="fi" id="invPurDamage" placeholder="0" min="0"/></div></div>
+<div class="err-box" id="invPurErr"></div>
+<div style="display:flex;gap:8px"><button class="btn btn-s" onclick="closeModal('m-inv-pur')" style="flex:.6">Cancel</button><button class="btn btn-p" onclick="saveInvPur()">Save</button></div>
+</div></div>
+
 <div class="overlay" id="m-del-confirm"><div class="confirm-box"><div class="sh-handle" style="margin-bottom:14px"></div><div class="confirm-icon"><svg viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6"/></svg></div><div style="text-align:center;margin-bottom:18px"><div style="font-size:17px;font-weight:700;color:var(--bark);font-family:Fraunces,serif;margin-bottom:6px">Delete Record?</div><div style="font-size:12px;color:var(--bark-lt)">This will be permanently removed.</div></div><div style="display:flex;gap:8px"><button class="btn btn-s" onclick="closeModal('m-del-confirm')" style="flex:1">Cancel</button><button class="btn btn-d" id="delConfirmBtn" style="flex:1">Delete</button></div></div></div>
 <script>
 var GS='https://script.google.com/macros/s/AKfycbycmmPaPC0gIOU5GLXhtff5e9eccZ9OmfpHxMZ8l-3g1FW4VBsGxUtQ_n_q_rKOkunt/exec';
@@ -860,6 +906,12 @@ function fT(ts){return new Date(ts).toLocaleTimeString('en-IN',{hour:'2-digit',m
 function fD(ts){var d=new Date(ts),t=new Date();return d.toDateString()===t.toDateString()?'Today':d.toLocaleDateString('en-IN',{day:'numeric',month:'short'});}
 
 /* AUTH */
+/* Dispatchers: route Add/Edit Product & Edit Variant modal actions
+   to admin-specific functions when in Admin mode, else original inventory functions */
+function dispAddVarRow(){ if(currentUser==='admin') admAddVarRow(); else addVarRow(); }
+function dispSaveProd(){ if(currentUser==='admin') admSaveProd(); else saveProd(); }
+function dispSaveEditVariant(){ if(currentUser==='admin') admSaveEditVariant(); else saveEditVariant(); }
+
 function checkAuth(){
   var s=localStorage.getItem(LS_AUTH);
   if(s){try{var d=JSON.parse(s);
@@ -984,7 +1036,7 @@ function invGo(name){
   document.querySelectorAll('#inventoryApp .ni').forEach(function(n){n.classList.remove('active');});
   eid('screen-'+name).classList.add('active');eid('invSw').scrollTop=0;
   var nav=eid('inv-nav-'+name);if(nav)nav.classList.add('active');
-  ({dashboard:renderDash,products:function(){buildTabs();buildFilters();renderProds();},khata:renderKhata,entry:populateEntSel}[name]||function(){})();
+  ({dashboard:renderDash,products:function(){buildTabs();buildFilters();renderProds();},khata:renderKhata,entry:populateEntSel,purchase:invRenderPurchase}[name]||function(){})();
 }
 function saveLocal(){try{localStorage.setItem(LS_P,JSON.stringify(products));localStorage.setItem(LS_A,JSON.stringify(activities.slice(-500)));}catch(e){}}
 function loadLocal(){try{var p=localStorage.getItem(LS_P),a=localStorage.getItem(LS_A);if(p)products=JSON.parse(p);if(a)activities=JSON.parse(a);}catch(e){}}
@@ -1124,9 +1176,34 @@ function admRenderDashboard(){
   eid('adm-inv-count').textContent=admProducts.length;eid('adm-rto-count').textContent=admRtos.length;eid('adm-co-count').textContent=admCustomOrders.length;
   eid('adm-cargo-count').textContent=admCargo.length;eid('adm-ship-count').textContent=admShiprocket.length;eid('adm-self-count').textContent=admSelfDeliver.length;
 }
+var admCatFilter='all',admSizeFilter='all',admLowOnly=false;
+function admBuildTabs(){var types=['all'].concat(CATEGORIES.filter(function(c){return admProducts.some(function(p){return p.category===c;});}));var el=eid('admCatTabs');if(!el)return;el.innerHTML=types.map(function(c){return '<button class="cat-tab'+(admCatFilter===c?' active':'')+'" onclick="admSetCat(\''+c+'\')">'+(c==='all'?'All':c)+'</button>';}).join('');}
+function admSetCat(c){admCatFilter=c;admBuildTabs();admBuildFilters();admRenderProds();}
+function admAllVariants(){var o=[];admProducts.forEach(function(p){p.variants.forEach(function(v){o.push(Object.assign({},v,{productId:p.id,productName:p.name,category:p.category,emoji:p.emoji}));});});return o;}
+function admBuildFilters(){
+  var el=eid('admFilterRow');if(!el)return;
+  var src=admCatFilter==='all'?admAllVariants():admAllVariants().filter(function(v){var p=admProducts.find(function(x){return String(x.id)===String(v.productId);});return p&&p.category===admCatFilter;});
+  var sizes=[];src.forEach(function(v){if(v.size&&sizes.indexOf(v.size)===-1)sizes.push(v.size);});sizes.sort();
+  var h='<div class="fchip'+(admSizeFilter==='all'?' active':'')+'" onclick="admSetSize(\'all\')">All Sizes</div>';
+  sizes.forEach(function(s){h+='<div class="fchip'+(admSizeFilter===s?' active':'')+'" onclick="admSetSize(\''+s+'\')">'+s+'</div>';});
+  h+='<div class="fchip'+(admLowOnly?' active':'')+'" style="border-color:rgba(192,40,40,.4);color:var(--red)" onclick="admToggleLow()">⚠ Low</div>';
+  el.innerHTML=h;
+}
+function admSetSize(s){admSizeFilter=s;admBuildFilters();admRenderProds();}
+function admToggleLow(){admLowOnly=!admLowOnly;admBuildFilters();admRenderProds();}
+
 function admRenderProds(){
+  admBuildTabs();admBuildFilters();
   var q=(eid('admSearchInput')?eid('admSearchInput').value:'').toLowerCase().trim();
-  var list=admProducts.filter(function(p){if(!q)return true;return [p.name,p.category].join(' ').toLowerCase().indexOf(q)!==-1||p.variants.some(function(v){return [v.color,v.size].join(' ').toLowerCase().indexOf(q)!==-1;});});
+  var list=admProducts.filter(function(p){
+    if(admCatFilter!=='all'&&p.category!==admCatFilter)return false;
+    return p.variants.some(function(v){
+      if(admSizeFilter!=='all'&&v.size!==admSizeFilter)return false;
+      if(admLowOnly&&!(v.stock<=(Number(v.lowThreshold)||DEFAULT_LOW)))return false;
+      if(q){var h=[p.name,p.category,v.color,v.size].join(' ').toLowerCase();if(h.indexOf(q)===-1)return false;}
+      return true;
+    });
+  });
   var el=eid('admProductList'),cnt=eid('admProdCount');if(cnt)cnt.textContent=list.length;
   if(!list.length){el.innerHTML='<div style="text-align:center;padding:40px;color:var(--bark-lt)">No products found.</div>';return;}
   el.innerHTML=list.map(function(p){
@@ -1134,7 +1211,13 @@ function admRenderProds(){
     var tb=p.variants.reduce(function(s,v){return s+v.packed;},0);
     var low=p.variants.filter(function(v){return v.stock<=(Number(v.lowThreshold)||DEFAULT_LOW);}).length;
     var pid='admp-'+p.id;
-    var varHtml=p.variants.map(function(v){
+    var fvars=p.variants.filter(function(v){
+      if(admSizeFilter!=='all'&&v.size!==admSizeFilter)return false;
+      if(admLowOnly&&!(v.stock<=(Number(v.lowThreshold)||DEFAULT_LOW)))return false;
+      if(q){var h=[p.name,p.category,v.color,v.size].join(' ').toLowerCase();if(h.indexOf(q)===-1)return false;}
+      return true;
+    });
+    var varHtml=fvars.map(function(v){
       var thresh=Number(v.lowThreshold)||DEFAULT_LOW;
       var isL=v.stock<=thresh;
       var left=v.stock-v.packed;
@@ -1152,7 +1235,8 @@ function admRenderProds(){
         '</div>'+
         '<div class="vcard-prog"><div class="prog-bar"><div class="prog-fill'+(pct>70?' hi':'')+'" style="width:'+pct+'%"></div></div>'+
         '<div class="prog-meta"><span>'+pct+'% packed</span><span>'+(isL?'⚠ Low':'~'+left+' left')+'</span></div></div>'+
-        (v.price?'<div style="font-size:11px;font-weight:700;color:var(--clay);background:var(--clay-l);padding:2px 9px;border-radius:6px;display:inline-block">₹'+v.price+'</div>':'')+
+        (v.price?'<div style="font-size:11px;font-weight:700;color:var(--clay);background:var(--clay-l);padding:2px 9px;border-radius:6px;display:inline-block;margin-bottom:8px">₹'+v.price+'</div>':'')+
+        '<div class="vcard-actions"><button class="vact vact-edit" style="flex:1" onclick="admOpenEditVariant(\''+p.id+'\',\''+v.id+'\')">✏️ Edit Variant</button></div>'+
         '</div></div>';
     }).join('');
     return '<div class="pcard" id="'+pid+'">'+
@@ -1170,9 +1254,70 @@ function admRenderProds(){
       '</div>'+
       '<div class="expand-ico"><svg viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg></div>'+
       '</div></div>'+
-      '<div class="var-wrap">'+varHtml+'</div>'+
+      '<div class="var-wrap"><div style="display:flex;align-items:center;justify-content:flex-end;padding:10px 15px 4px"><button class="qb" style="font-size:10px;padding:4px 10px" onclick="admOpenEditProd(\''+p.id+'\')">✏️ Edit Product</button></div>'+varHtml+'</div>'+
       '</div>';
   }).join('');
+}
+
+/* Admin-specific add/edit product (separate from inventory app to avoid touching original) */
+var admVarRows=[],admEditProdId=null;
+function openAdmAddProduct(){admEditProdId=null;admVarRows=[];eid('mProdTitle').textContent='Add Product';eid('pName').value='';eid('pEmoji').value='';eid('pCat').value='Kitchen';eid('pErr').style.display='none';admRenderVarBuilder();admAddVarRow();openModal('m-product');}
+function admOpenEditProd(id){var p=admProducts.find(function(x){return String(x.id)===String(id);});if(!p)return;admEditProdId=String(id);eid('mProdTitle').textContent='Edit Product';eid('pName').value=p.name;eid('pEmoji').value=p.emoji||'';eid('pCat').value=p.category;admVarRows=p.variants.map(function(v){return Object.assign({},v);});eid('pErr').style.display='none';admRenderVarBuilder();openModal('m-product');}
+function admAddVarRow(){var id='v'+Date.now()+Math.floor(Math.random()*9999);admVarRows.push({id:id,color:'',size:'',sku:'',stock:0,packed:0,price:'',lowThreshold:DEFAULT_LOW});admRenderVarBuilder();setTimeout(function(){var s=eid('m-product').querySelector('.sheet');if(s)s.scrollTop=s.scrollHeight;},50);}
+function admRemoveVarRow(id){admVarRows=admVarRows.filter(function(v){return v.id!==id;});admRenderVarBuilder();}
+function admSetVarField(id,field,val){var v=admVarRows.find(function(r){return r.id===id;});if(!v)return;if(['stock','packed','price','lowThreshold'].indexOf(field)!==-1)v[field]=Number(val)||0;else v[field]=val;}
+function admRenderVarBuilder(){
+  var b=eid('varBuilder');
+  if(!admVarRows.length){b.innerHTML='<div style="text-align:center;font-size:11.5px;color:var(--bark-lt);padding:10px">No variants. Click below to add.</div>';return;}
+  b.innerHTML=admVarRows.map(function(v){
+    return '<div class="vrow"><div style="display:flex;align-items:flex-start;gap:7px"><div class="vrow-grid">'+
+      '<div><label class="fl" style="font-size:9px">Color *</label><input class="fi" style="padding:8px 10px;font-size:12px" placeholder="e.g. Green" value="'+(v.color||'')+'" oninput="admSetVarField(\''+v.id+'\',\'color\',this.value)"/></div>'+
+      '<div><label class="fl" style="font-size:9px">Size *</label><input class="fi" style="padding:8px 10px;font-size:12px" placeholder="e.g. 4 inch" value="'+(v.size||'')+'" oninput="admSetVarField(\''+v.id+'\',\'size\',this.value)"/></div>'+
+      '<div><label class="fl" style="font-size:9px">SKU</label><input class="fi" style="padding:8px 10px;font-size:12px" placeholder="Auto" value="'+(v.sku||'')+'" oninput="admSetVarField(\''+v.id+'\',\'sku\',this.value)"/></div>'+
+      '<div><label class="fl" style="font-size:9px">Price ₹</label><input class="fi" style="padding:8px 10px;font-size:12px" type="number" placeholder="0" value="'+(v.price||'')+'" oninput="admSetVarField(\''+v.id+'\',\'price\',this.value)"/></div>'+
+      '<div><label class="fl" style="font-size:9px">Stock</label><input class="fi" style="padding:8px 10px;font-size:12px" type="number" placeholder="0" value="'+(v.stock||'')+'" oninput="admSetVarField(\''+v.id+'\',\'stock\',this.value)"/></div>'+
+      '<div><label class="fl" style="font-size:9px">Box Ready</label><input class="fi" style="padding:8px 10px;font-size:12px" type="number" placeholder="0" value="'+(v.packed||'')+'" oninput="admSetVarField(\''+v.id+'\',\'packed\',this.value)"/></div>'+
+      '</div><button class="vrow-del" onclick="admRemoveVarRow(\''+v.id+'\')">✕</button></div></div>';
+  }).join('');
+}
+function admSaveProd(){
+  var name=eid('pName').value.trim(),cat=eid('pCat').value,emoji=eid('pEmoji').value.trim()||CAT_EMOJI[cat]||'📦';
+  var err=eid('pErr');
+  if(!name){err.textContent='Name required.';err.style.display='block';return;}
+  if(!admVarRows.length){err.textContent='Add at least one variant.';err.style.display='block';return;}
+  if(admVarRows.find(function(v){return !v.color.trim()||!v.size.trim();})){err.textContent='Every variant needs Color and Size.';err.style.display='block';return;}
+  err.style.display='none';
+  var id=admEditProdId||String(Date.now());
+  var p={id:id,name:name,category:cat,emoji:emoji,variants:admVarRows.map(function(v){return{id:v.id,color:v.color.trim(),size:v.size.trim(),sku:v.sku.trim()||name.slice(0,3).toUpperCase()+'-'+v.color.slice(0,2).toUpperCase()+'-'+v.size.replace(/\s+/g,'').slice(0,4).toUpperCase(),stock:Number(v.stock)||0,packed:Number(v.packed)||0,price:v.price||'',lowThreshold:Number(v.lowThreshold)||DEFAULT_LOW};})};
+  if(admEditProdId){var idx=admProducts.findIndex(function(x){return String(x.id)===admEditProdId;});if(idx>=0)admProducts[idx]=p;else admProducts.push(p);}else admProducts.push(p);
+  saveAdminLocal();admSetSS('busy','Saving…');
+  Promise.all(p.variants.map(function(v){return gsCall({action:'saveVariant',productId:p.id,productName:p.name,category:p.category,emoji:p.emoji,color:v.color,size:v.size,sku:v.sku||'',stock:v.stock,boxReady:v.packed,price:v.price||'',lowThreshold:v.lowThreshold||DEFAULT_LOW});})).then(function(){admSetSS('ok','✅ Saved');toast((admEditProdId?'Updated':'Added')+' ✅','ok');});
+  closeModal('m-product');admRenderProds();admRenderDashboard();
+}
+var admEditVarData=null;
+function admOpenEditVariant(pid,vid){
+  var p=admProducts.find(function(x){return String(x.id)===String(pid);});
+  var v=p&&p.variants.find(function(x){return String(x.id)===String(vid);});
+  if(!p||!v)return;
+  admEditVarData={product:p,variant:v};
+  eid('mEditVarTitle').textContent='Edit: '+v.color+' '+p.name;
+  eid('evColor').value=v.color;eid('evSize').value=v.size;eid('evSku').value=v.sku||'';eid('evStock').value=v.stock;eid('evPacked').value=v.packed;eid('evPrice').value=v.price||'';
+  eid('evErr').style.display='none';
+  openModal('m-edit-variant');
+}
+function admSaveEditVariant(){
+  if(!admEditVarData)return;
+  var p=admEditVarData.product,v=admEditVarData.variant;
+  var color=eid('evColor').value.trim(),size=eid('evSize').value.trim();
+  var err=eid('evErr');
+  if(!color||!size){err.textContent='Color and Size required.';err.style.display='block';return;}
+  var stock=parseInt(eid('evStock').value)||0,packed=parseInt(eid('evPacked').value)||0;
+  if(packed>stock){err.textContent='Box Ready cannot exceed Stock.';err.style.display='block';return;}
+  err.style.display='none';
+  v.color=color;v.size=size;v.sku=eid('evSku').value.trim()||v.sku;v.stock=stock;v.packed=packed;v.price=eid('evPrice').value||'';
+  saveAdminLocal();admSetSS('busy','Saving…');
+  gsCall({action:'saveVariant',productId:p.id,productName:p.name,category:p.category,emoji:p.emoji,color:v.color,size:v.size,sku:v.sku||'',stock:v.stock,boxReady:v.packed,price:v.price||'',lowThreshold:v.lowThreshold||DEFAULT_LOW}).then(function(){admSetSS('ok','✅ Saved');toast('Updated ✅','ok');});
+  closeModal('m-edit-variant');admRenderProds();
 }
 function admRenderRTO(){
   var q=(eid('admRtoSearch')?eid('admRtoSearch').value:'').toLowerCase();
@@ -2325,6 +2470,178 @@ function renderLinkedRecordsBlock(sourceModuleKey, sourceFieldValue, containerId
     container.innerHTML=html;
   });
 }
+
+/* ══════════════════════════════════════════
+   INVENTORY APP — PURCHASE (FAB Quick Action)
+   Reuses same Purchase Google Sheet via savePurchase/deletePurchase
+══════════════════════════════════════════ */
+var invPurchase=[];
+var invPurView='date';
+var invEditPur=null;
+
+function loadInvPurchaseLocal(){try{var p=localStorage.getItem(LS_APU);if(p)invPurchase=JSON.parse(p);}catch(e){}}
+function saveInvPurchaseLocal(){try{localStorage.setItem(LS_APU,JSON.stringify(invPurchase));}catch(e){}}
+
+function invSetPurView(v){
+  invPurView=v;
+  eid('invPurViewDate').classList.toggle('active',v==='date');
+  eid('invPurViewVendor').classList.toggle('active',v==='vendor');
+  invRenderPurchase();
+}
+
+function invRenderPurchase(){
+  loadInvPurchaseLocal();
+  var q=(eid('invPurSearch')?eid('invPurSearch').value:'').toLowerCase();
+  var month=eid('invPurMonthFilter')?eid('invPurMonthFilter').value:'';
+  var year=eid('invPurYearFilter')?eid('invPurYearFilter').value:'';
+
+  var list=invPurchase.filter(function(p){
+    if(q&&[p.prodName,p.vendorName,p.color,p.size,p.category].join(' ').toLowerCase().indexOf(q)===-1)return false;
+    if(month||year){
+      var d=parsePurDate(p.date);
+      if(d){
+        if(month&&(d.getMonth()+1)!==parseInt(month))return false;
+        if(year&&d.getFullYear()!==parseInt(year))return false;
+      }
+    }
+    return true;
+  });
+
+  var el=eid('invPurList'),emp=eid('invPurEmpty'),cnt=eid('invPurCount');
+  if(cnt)cnt.textContent=list.length;
+  if(!list.length){el.innerHTML='';emp.style.display='block';return;}
+  emp.style.display='none';
+
+  if(invPurView==='date'){
+    var groups={};
+    list.forEach(function(p){var d=p.date||'Unknown';if(!groups[d])groups[d]=[];groups[d].push(p);});
+    var sortedDates=Object.keys(groups).sort(function(a,b){var da=parsePurDate(a),db=parsePurDate(b);if(!da)return 1;if(!db)return -1;return db-da;});
+    el.innerHTML=sortedDates.map(function(date){
+      var entries=groups[date];
+      var totalQty=entries.reduce(function(s,p){return s+Number(p.qty||0);},0);
+      var d=parsePurDate(date);
+      var label=d?d.toLocaleDateString('en-IN',{weekday:'short',day:'numeric',month:'short',year:'numeric'}):date;
+      return '<div class="kh-day">'+label+' <span style="font-size:9px;background:var(--clay-l);color:var(--clay-d);padding:1px 7px;border-radius:10px;font-weight:700;margin-left:4px">'+entries.length+' items · '+totalQty+' qty</span></div>'+
+        entries.map(function(p){return invPurCardHtml(p);}).join('');
+    }).join('');
+  } else {
+    var vgroups={};
+    list.forEach(function(p){var v=p.vendorName||'Unknown';if(!vgroups[v])vgroups[v]=[];vgroups[v].push(p);});
+    var sortedVendors=Object.keys(vgroups).sort();
+    el.innerHTML=sortedVendors.map(function(vendor){
+      var entries=vgroups[vendor];
+      var totalQty=entries.reduce(function(s,p){return s+Number(p.qty||0);},0);
+      var totalDmg=entries.reduce(function(s,p){return s+Number(p.damage||0);},0);
+      return '<div class="kh-day"><span style="font-size:13px">👤</span> '+vendor+
+        ' <span style="font-size:9px;background:var(--amber-l);color:var(--amber-d);padding:1px 7px;border-radius:10px;font-weight:700;margin-left:4px">'+entries.length+' entries · '+totalQty+' qty'+(totalDmg>0?' · <span style="color:var(--red)">'+totalDmg+' dmg</span>':'')+'</span></div>'+
+        entries.sort(function(a,b){var da=parsePurDate(a.date),db=parsePurDate(b.date);if(!da)return 1;if(!db)return -1;return db-da;}).map(function(p){return invPurCardHtml(p);}).join('');
+    }).join('');
+  }
+}
+
+function invPurCardHtml(p){
+  return '<div class="rto-adm-card" style="margin-bottom:9px">'+
+    '<div style="display:flex;align-items:flex-start;justify-content:space-between;gap:9px;margin-bottom:8px">'+
+    '<div style="flex:1;min-width:0">'+
+    '<div style="font-size:15px;font-weight:700;color:var(--bark);font-family:Fraunces,serif">'+p.prodName+'</div>'+
+    '<div style="display:flex;gap:5px;margin-top:4px;flex-wrap:wrap">'+
+    (p.category?'<span style="font-size:9px;background:var(--clay-l);color:var(--clay-d);padding:2px 7px;border-radius:20px;font-weight:700;text-transform:uppercase">'+p.category+'</span>':'')+
+    (p.color?'<span style="font-size:9px;background:var(--surf3);color:var(--bark-lt);padding:2px 7px;border-radius:20px;font-weight:600">'+p.color+'</span>':'')+
+    (p.size?'<span style="font-size:9px;background:var(--surf3);color:var(--bark-lt);padding:2px 7px;border-radius:20px;font-weight:600">'+p.size+'</span>':'')+
+    '</div></div>'+
+    '<div style="text-align:right;flex-shrink:0">'+
+    '<div style="font-size:26px;font-weight:700;font-family:Fraunces,serif;color:var(--leaf);line-height:1">'+p.qty+'</div>'+
+    '<div style="font-size:9px;color:var(--bark-lt)">qty</div>'+
+    (Number(p.damage)>0?'<div style="font-size:11px;font-weight:700;color:var(--red);margin-top:2px">'+p.damage+' dmg</div>':'')+
+    '</div></div>'+
+    '<div style="display:flex;align-items:center;gap:8px;padding:8px 10px;background:var(--bg);border-radius:10px;border:1px solid var(--brd);margin-bottom:8px">'+
+    '<div style="width:32px;height:32px;border-radius:50%;background:var(--amber-l);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;color:var(--amber-d);flex-shrink:0">'+(p.vendorName?p.vendorName[0].toUpperCase():'?')+'</div>'+
+    '<div style="flex:1"><div style="font-size:13px;font-weight:700;color:var(--bark)">'+p.vendorName+'</div><div style="font-size:10px;color:var(--bark-lt)">📅 '+fSD(p.date)+'</div></div>'+
+    '</div>'+
+    '<div style="display:flex;gap:7px">'+
+    '<button class="vact vact-edit" style="flex:1" onclick="openInvPurModal(\''+p.id+'\')">✏️ Edit</button>'+
+    '<button class="vact vact-sale" style="flex:0.5" onclick="confirmInvPurDel(\''+p.id+'\')">🗑</button>'+
+    '</div></div>';
+}
+
+function openInvPurModal(id){
+  invEditPur=id||null;
+  eid('mInvPurTitle').textContent=id?'Edit Purchase':'Add Purchase';
+  if(id){
+    var p=invPurchase.find(function(x){return String(x.id)===String(id);});
+    if(p){
+      eid('invPurDate').value=p.date||'';
+      eid('invPurProd').value=p.prodName||'';
+      eid('invPurCat').value=p.category||'Kitchen';
+      eid('invPurColor').value=p.color||'';
+      eid('invPurSize').value=p.size||'';
+      eid('invPurVendor').value=p.vendorName||'';
+      eid('invPurQty').value=p.qty||'';
+      eid('invPurDamage').value=p.damage||'0';
+    }
+  }else{
+    ['invPurProd','invPurColor','invPurSize','invPurVendor','invPurQty'].forEach(function(i){eid(i).value='';});
+    eid('invPurDate').value=new Date().toISOString().slice(0,10);
+    eid('invPurDamage').value='0';
+    eid('invPurCat').value='Kitchen';
+  }
+  eid('invPurErr').style.display='none';
+  openModal('m-inv-pur');
+}
+
+function saveInvPur(){
+  var prodName=eid('invPurProd').value.trim();
+  var vendorName=eid('invPurVendor').value.trim();
+  var qty=eid('invPurQty').value;
+  var date=eid('invPurDate').value;
+  var err=eid('invPurErr');
+  if(!prodName||!vendorName||!qty||!date){err.textContent='Date, Product, Vendor and Quantity required.';err.style.display='block';return;}
+  err.style.display='none';
+  var id=invEditPur||String(Date.now());
+  var data={
+    id:id,date:date,prodName:prodName,category:eid('invPurCat').value,
+    color:eid('invPurColor').value.trim(),size:eid('invPurSize').value.trim(),
+    vendorName:vendorName,qty:Number(qty)||0,damage:Number(eid('invPurDamage').value)||0
+  };
+  if(invEditPur){
+    var idx=invPurchase.findIndex(function(x){return String(x.id)===invEditPur;});
+    if(idx>=0)invPurchase[idx]=data;else invPurchase.push(data);
+  }else{
+    invPurchase.push(data);
+  }
+  saveInvPurchaseLocal();
+  setSS('busy','Saving…');
+  gsCall({action:'savePurchase',id:data.id,date:data.date,prodName:data.prodName,category:data.category,color:data.color,size:data.size,vendorName:data.vendorName,qty:data.qty,damage:data.damage}).then(function(res){
+    setSS('ok','✅ Saved');
+    if(res&&res.success){toast('Purchase saved ✅','ok');}else{toast('Saved locally ✅','ok');}
+  });
+  closeModal('m-inv-pur');
+  invRenderPurchase();
+}
+
+function confirmInvPurDel(id){
+  pendingDelType='invpur';pendingDelId=id;
+  eid('delConfirmBtn').onclick=executeInvPurDel;
+  openModal('m-del-confirm');
+}
+function executeInvPurDel(){
+  closeModal('m-del-confirm');
+  var id=pendingDelId;
+  setSS('busy','Deleting…');
+  gsCall({action:'deletePurchase',id:id}).then(function(){
+    invPurchase=invPurchase.filter(function(p){return String(p.id)!==String(id);});
+    saveInvPurchaseLocal();invRenderPurchase();setSS('ok','Deleted');toast('Deleted','err');
+  });
+}
+
+/* Patch syncNow to also pull Purchase data for Inventory app (non-invasive) */
+var _origSyncNowForPur=syncNow;
+syncNow=function(){
+  _origSyncNowForPur();
+  gsCall({action:'getAdminAll'}).then(function(data){
+    if(Array.isArray(data.purchase)){invPurchase=data.purchase;saveInvPurchaseLocal();if(eid('screen-purchase')&&eid('screen-purchase').classList.contains('active'))invRenderPurchase();}
+  }).catch(function(){});
+};
 
 checkAuth();
 
