@@ -1703,7 +1703,7 @@ function saveAdmPur(){
   savePurchaseLocal();
   // Push to GAS
   gsCall({action:'savePurchase',id:data.id,date:data.date,prodName:data.prodName,category:data.category,color:data.color,size:data.size,vendorName:data.vendorName,qty:data.qty,damage:data.damage}).then(function(res){
-    if(res&&res.success){toast('Purchase saved ✅','ok');}else{toast('Saved locally ✅','ok');}
+    if(res&&res.success){toast('Purchase saved ✅','ok');}else{toast('Sheet me save nahi hua: '+((res&&res.error)||'Unknown error'),'err');}
   });
   closeModal('m-adm-pur');
   admRenderPurchase();
@@ -2612,8 +2612,7 @@ function saveInvPur(){
   saveInvPurchaseLocal();
   setSS('busy','Saving…');
   gsCall({action:'savePurchase',id:data.id,date:data.date,prodName:data.prodName,category:data.category,color:data.color,size:data.size,vendorName:data.vendorName,qty:data.qty,damage:data.damage}).then(function(res){
-    setSS('ok','✅ Saved');
-    if(res&&res.success){toast('Purchase saved ✅','ok');}else{toast('Saved locally ✅','ok');}
+    if(res&&res.success){setSS('ok','✅ Saved');toast('Purchase saved ✅','ok');}else{setSS('err','⚠️ Not synced');toast('Sheet me save nahi hua: '+((res&&res.error)||'Unknown error'),'err');}
   });
   closeModal('m-inv-pur');
   invRenderPurchase();
