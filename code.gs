@@ -58,11 +58,13 @@ function requireAuth(token, requiredRole) {
   if (!s) return { ok: false, error: 'Unauthorized: invalid or expired session' };
   if (requiredRole === 'admin' && s.role !== 'admin') return { ok: false, error: 'Forbidden: admin access required' };
   if (requiredRole === 'admin_or_restricted' && s.role !== 'admin' && s.role !== 'restricted') return { ok: false, error: 'Forbidden' };
+  if (requiredRole === 'admin_or_restricted_or_inventory' && s.role !== 'admin' && s.role !== 'restricted' && s.role !== 'inventory') return { ok: false, error: 'Forbidden' };
   return { ok: true, session: s };
 }
 
 function requireSectionPerm(session, sectionKey, permType) {
   if (session.role === 'admin') return true;
+  if (session.role === 'inventory' && sectionKey === 'purchase') return true;
   var p = (session.permissions || {})[sectionKey] || {};
   return permType === 'view' ? !!(p.view || p.edit) : !!p.edit;
 }
@@ -106,8 +108,8 @@ function doGet(e) {
     else if (action === 'deleteShiprocket')  { var a=requireAuth(token,'admin_or_restricted'); if(!a.ok)result=a; else if(!requireSectionPerm(a.session,'shiprocket','edit'))result={error:'Forbidden'};else result=deleteShiprocket(p); }
     else if (action === 'saveSelfDeliver')   { var a=requireAuth(token,'admin_or_restricted'); if(!a.ok)result=a; else if(!requireSectionPerm(a.session,'self-deliver','edit'))result={error:'Forbidden'};else result=saveSelfDeliver(p); }
     else if (action === 'deleteSelfDeliver') { var a=requireAuth(token,'admin_or_restricted'); if(!a.ok)result=a; else if(!requireSectionPerm(a.session,'self-deliver','edit'))result={error:'Forbidden'};else result=deleteSelfDeliver(p); }
-    else if (action === 'savePurchase')      { var a=requireAuth(token,'admin_or_restricted'); if(!a.ok)result=a; else if(!requireSectionPerm(a.session,'purchase','edit'))result={error:'Forbidden'};else result=savePurchase(p); }
-    else if (action === 'deletePurchase')    { var a=requireAuth(token,'admin_or_restricted'); if(!a.ok)result=a; else if(!requireSectionPerm(a.session,'purchase','edit'))result={error:'Forbidden'};else result=deletePurchase(p); }
+    else if (action === 'savePurchase')      { var a=requireAuth(token,'admin_or_restricted_or_inventory'); if(!a.ok)result=a; else if(!requireSectionPerm(a.session,'purchase','edit'))result={error:'Forbidden'};else result=savePurchase(p); }
+    else if (action === 'deletePurchase')    { var a=requireAuth(token,'admin_or_restricted_or_inventory'); if(!a.ok)result=a; else if(!requireSectionPerm(a.session,'purchase','edit'))result={error:'Forbidden'};else result=deletePurchase(p); }
     // Admin-only actions
     else if (action === 'getUsers')          { var a=requireAuth(token,'admin'); if(!a.ok)result=a; else result={ users: readUsers() }; }
     else if (action === 'saveUser')          { var a=requireAuth(token,'admin'); if(!a.ok)result=a; else result=saveUser(p); }
@@ -175,8 +177,8 @@ function doPost(e) {
     else if (action === 'deleteShiprocket')  { var a=requireAuth(token,'admin_or_restricted'); if(!a.ok)result=a; else if(!requireSectionPerm(a.session,'shiprocket','edit'))result={error:'Forbidden'};else result=deleteShiprocket(data); }
     else if (action === 'saveSelfDeliver')   { var a=requireAuth(token,'admin_or_restricted'); if(!a.ok)result=a; else if(!requireSectionPerm(a.session,'self-deliver','edit'))result={error:'Forbidden'};else result=saveSelfDeliver(data); }
     else if (action === 'deleteSelfDeliver') { var a=requireAuth(token,'admin_or_restricted'); if(!a.ok)result=a; else if(!requireSectionPerm(a.session,'self-deliver','edit'))result={error:'Forbidden'};else result=deleteSelfDeliver(data); }
-    else if (action === 'savePurchase')      { var a=requireAuth(token,'admin_or_restricted'); if(!a.ok)result=a; else if(!requireSectionPerm(a.session,'purchase','edit'))result={error:'Forbidden'};else result=savePurchase(data); }
-    else if (action === 'deletePurchase')    { var a=requireAuth(token,'admin_or_restricted'); if(!a.ok)result=a; else if(!requireSectionPerm(a.session,'purchase','edit'))result={error:'Forbidden'};else result=deletePurchase(data); }
+    else if (action === 'savePurchase')      { var a=requireAuth(token,'admin_or_restricted_or_inventory'); if(!a.ok)result=a; else if(!requireSectionPerm(a.session,'purchase','edit'))result={error:'Forbidden'};else result=savePurchase(data); }
+    else if (action === 'deletePurchase')    { var a=requireAuth(token,'admin_or_restricted_or_inventory'); if(!a.ok)result=a; else if(!requireSectionPerm(a.session,'purchase','edit'))result={error:'Forbidden'};else result=deletePurchase(data); }
     else if (action === 'getUsers')          { var a=requireAuth(token,'admin'); if(!a.ok)result=a; else result={ users: readUsers() }; }
     else if (action === 'saveUser')          { var a=requireAuth(token,'admin'); if(!a.ok)result=a; else result=saveUser(data); }
     else if (action === 'deleteUser')        { var a=requireAuth(token,'admin'); if(!a.ok)result=a; else result=deleteUser(data); }

@@ -438,23 +438,8 @@ button:focus-visible,input:focus-visible,select:focus-visible{outline:2px solid 
     <div class="login-step active" id="step1">
       <div class="login-err" id="step1Err"></div>
       <div class="login-field"><label class="login-label">User ID</label><input type="email" class="login-input" id="loginUserId" placeholder="Enter your User ID" autocomplete="off"/></div>
-      <button class="login-btn" onclick="checkUserId()">Continue →</button>
+      <button class="login-btn" onclick="checkUserId()">Login →</button>
       <div class="login-info">Authorized users only.</div>
-    </div>
-    <div class="login-step" id="step2">
-      <div class="login-err" id="step2Err"></div>
-      <div style="text-align:center;margin-bottom:16px"><div style="font-size:13px;font-weight:700;color:var(--bark)">OTP Sent! 📧</div><div style="font-size:11px;color:var(--bark-lt);margin-top:4px">Enter the 6-digit OTP</div></div>
-      <div class="otp-boxes">
-        <input type="number" class="otp-box" id="otp0" maxlength="1" oninput="otpInput(0)" onkeydown="otpKey(event,0)"/>
-        <input type="number" class="otp-box" id="otp1" maxlength="1" oninput="otpInput(1)" onkeydown="otpKey(event,1)"/>
-        <input type="number" class="otp-box" id="otp2" maxlength="1" oninput="otpInput(2)" onkeydown="otpKey(event,2)"/>
-        <input type="number" class="otp-box" id="otp3" maxlength="1" oninput="otpInput(3)" onkeydown="otpKey(event,3)"/>
-        <input type="number" class="otp-box" id="otp4" maxlength="1" oninput="otpInput(4)" onkeydown="otpKey(event,4)"/>
-        <input type="number" class="otp-box" id="otp5" maxlength="1" oninput="otpInput(5)" onkeydown="otpKey(event,5)"/>
-      </div>
-      <button class="login-btn" onclick="verifyOTP()">Verify OTP ✓</button>
-      <button class="resend-btn" id="resendBtn" onclick="resendOTP()" style="margin-top:12px">Resend OTP (<span id="resendTimer">60</span>s)</button>
-      <button style="background:none;border:none;color:var(--bark-lt);font-family:DM Sans,sans-serif;font-size:11px;cursor:pointer;display:block;width:100%;text-align:center;margin-top:8px" onclick="backToStep1()">← Change User ID</button>
     </div>
   </div>
 </div>
@@ -882,7 +867,6 @@ var catFilter='all',sizeFilter='all',lowOnly=false,entType='pack',khFilter='all'
 var admProducts=[],admRtos=[],admCustomOrders=[],admCargo=[],admShiprocket=[],admSelfDeliver=[],admUsers=[];
 var admEditRTO=null,admEditCO=null,admEditCargo=null,admEditShip=null,admEditSelf=null,admEditUser=null;
 var pendingDelType=null,pendingDelId=null;
-var currentOTP='',otpTimer=null,resendCountdown=0;
 var LS_P='hb7_p',LS_A='hb7_a';
 var LS_AR='hb7_admr',LS_ACO='hb7_admco',LS_ACG='hb7_cargo',LS_ASH='hb7_ship',LS_ASF='hb7_self',LS_AP='hb7_admp';
 var LS_USR='hb7_users';
@@ -915,7 +899,7 @@ function dispSaveEditVariant(){ if(currentUser==='admin') admSaveEditVariant(); 
 function checkAuth(){
   var s=localStorage.getItem(LS_AUTH);
   if(s){try{var d=JSON.parse(s);
-    if(d.ok&&Date.now()-d.t<7776000000){
+    if(d.ok){
       currentUser=d.role;currentUserPerms=d.permissions||null;
       sessionToken=localStorage.getItem(LS_TOK)||'';
       if(currentUser==='admin')showAdminApp(true);
@@ -944,7 +928,7 @@ function applyRestrictedUI(){
     if(navEl)navEl.style.display=(p.view||p.edit)?'':'none';
   });
 }
-function logout(){localStorage.removeItem(LS_AUTH);localStorage.removeItem(LS_TOK);currentOTP='';sessionToken='';currentUserPerms=null;window._pendingRestrictedUser=null;clearInterval(otpTimer);showStep(1);eid('loginUserId').value='';[0,1,2,3,4,5].forEach(function(i){eid('otp'+i).value='';});showLogin();}
+function logout(){localStorage.removeItem(LS_AUTH);localStorage.removeItem(LS_TOK);sessionToken='';currentUserPerms=null;eid('loginUserId').value='';showLogin();}
 
 function checkUserId(){
   var val=eid('loginUserId').value.trim().toLowerCase();
@@ -952,66 +936,28 @@ function checkUserId(){
   if(!val){err.textContent='Please enter User ID.';err.style.display='block';return;}
   err.style.display='none';
   var btn=document.querySelector('#step1 .login-btn');
-  btn.disabled=true;btn.textContent='Checking…';
-  // Check if valid user (server validates hardcoded + restricted users)
-  fetch(GS+'?action=checkUser&email='+encodeURIComponent(val)).then(function(r){return r.text();}).then(function(t){
+  btn.disabled=true;btn.textContent='Logging in…';
+  // Direct login — server validates hardcoded + restricted users and issues a permanent session token
+  fetch(GS+'?action=login&email='+encodeURIComponent(val)).then(function(r){return r.text();}).then(function(t){
     try{
       var d=JSON.parse(t.trim().replace(/^\uFEFF/,''));
-      if(d.found){
-        // Valid user — send OTP
-        fetch(GS+'?action=sendOTP&email='+encodeURIComponent(val)).then(function(r2){return r2.text();}).then(function(t2){
-          try{
-            var d2=JSON.parse(t2.trim().replace(/^\uFEFF/,''));
-            if(d2.success){showStep(2);startResendTimer();}
-            else{err.textContent='OTP error: '+(d2.error||'try again');err.style.display='block';}
-          }catch(e){err.textContent='Server error.';err.style.display='block';}
-          btn.disabled=false;btn.textContent='Continue →';
-        });
+      if(d.success){
+        sessionToken=d.token||'';
+        currentUser=d.role;
+        currentUserPerms=d.permissions||null;
+        localStorage.setItem(LS_TOK,sessionToken);
+        localStorage.setItem(LS_AUTH,JSON.stringify({ok:true,t:Date.now(),role:d.role,permissions:d.permissions||null}));
+        toast('Welcome! 🙏','ok');
+        if(d.role==='admin')showAdminApp(true);
+        else if(d.role==='restricted')showAdminApp(false);
+        else showInvApp();
       }else{
-        err.textContent='Invalid User ID. Access denied.';err.style.display='block';
-        btn.disabled=false;btn.textContent='Continue →';
+        err.textContent=d.error||'Invalid User ID. Access denied.';err.style.display='block';
+        btn.disabled=false;btn.textContent='Login →';
       }
-    }catch(e){err.textContent='Server error.';err.style.display='block';btn.disabled=false;btn.textContent='Continue →';}
-  }).catch(function(){err.textContent='Network error.';err.style.display='block';btn.disabled=false;btn.textContent='Continue →';});
+    }catch(e){err.textContent='Server error.';err.style.display='block';btn.disabled=false;btn.textContent='Login →';}
+  }).catch(function(){err.textContent='Network error.';err.style.display='block';btn.disabled=false;btn.textContent='Login →';});
 }
-function showStep(n){eid('step1').classList.toggle('active',n===1);eid('step2').classList.toggle('active',n===2);}
-function backToStep1(){clearInterval(otpTimer);window._pendingRestrictedUser=null;showStep(1);}
-function otpInput(idx){var v=eid('otp'+idx).value;if(v.length>1)eid('otp'+idx).value=v.slice(-1);if(eid('otp'+idx).value&&idx<5)eid('otp'+(idx+1)).focus();}
-function otpKey(e,idx){if(e.key==='Backspace'&&!eid('otp'+idx).value&&idx>0)eid('otp'+(idx-1)).focus();}
-function verifyOTP(){
-  var entered=[0,1,2,3,4,5].map(function(i){return eid('otp'+i).value;}).join('');
-  var err=eid('step2Err');
-  if(entered.length!==6){err.textContent='Enter all 6 digits.';err.style.display='block';return;}
-  var btn=document.querySelector('#step2 .login-btn');
-  btn.disabled=true;btn.textContent='Verifying…';
-  var loginEmail=eid('loginUserId').value.trim().toLowerCase();
-  // Call server to verify OTP and get session token
-  fetch(GS+'?action=verifyOTP&email='+encodeURIComponent(loginEmail)+'&otp='+encodeURIComponent(entered))
-    .then(function(r){return r.text();}).then(function(t){
-      try{
-        var d=JSON.parse(t.trim().replace(/^\uFEFF/,''));
-        if(d.success){
-          err.style.display='none';clearInterval(otpTimer);
-          sessionToken=d.token||'';
-          currentUser=d.role;
-          currentUserPerms=d.permissions||null;
-          localStorage.setItem(LS_TOK,sessionToken);
-          localStorage.setItem(LS_AUTH,JSON.stringify({ok:true,t:Date.now(),role:d.role,permissions:d.permissions||null}));
-          toast('Welcome! 🙏','ok');
-          window._pendingRestrictedUser=null;
-          if(d.role==='admin')showAdminApp(true);
-          else if(d.role==='restricted')showAdminApp(false);
-          else showInvApp();
-        }else{
-          err.textContent=d.error||'Wrong OTP.';err.style.display='block';
-          [0,1,2,3,4,5].forEach(function(i){eid('otp'+i).value='';});eid('otp0').focus();
-        }
-      }catch(e){err.textContent='Server error.';err.style.display='block';}
-      btn.disabled=false;btn.textContent='Verify OTP ✓';
-    }).catch(function(){err.textContent='Network error.';err.style.display='block';btn.disabled=false;btn.textContent='Verify OTP ✓';});
-}
-function startResendTimer(){resendCountdown=60;var rb=eid('resendBtn');rb.disabled=true;clearInterval(otpTimer);otpTimer=setInterval(function(){resendCountdown--;eid('resendTimer').textContent=resendCountdown;if(resendCountdown<=0){clearInterval(otpTimer);rb.disabled=false;rb.textContent='Resend OTP';}},1000);}
-function resendOTP(){var val=eid('loginUserId').value.trim();eid('resendBtn').disabled=true;fetch(GS+'?action=sendOTP&email='+encodeURIComponent(val)).then(function(r){return r.text();}).then(function(t){try{var d=JSON.parse(t.trim().replace(/^\uFEFF/,''));if(d.success){currentOTP=String(d.otp||'');toast('OTP resent ✅','ok');startResendTimer();}}catch(e){}eid('resendBtn').disabled=false;}).catch(function(){eid('resendBtn').disabled=false;});}
 
 /* UTILS */
 function toast(msg,type,dur){type=type||'info';dur=dur||2800;var icons={ok:'✅',err:'❌',info:'📝',warn:'⚠️'};var wrap=currentUser==='admin'?eid('admToastWrap'):eid('invToastWrap');if(!wrap)wrap=eid('invToastWrap');var el=document.createElement('div');el.className='toast '+type;el.innerHTML='<span>'+(icons[type]||'📝')+'</span><span>'+msg+'</span>';wrap.appendChild(el);setTimeout(function(){el.classList.add('toast-out');setTimeout(function(){el.remove();},250);},dur);}
